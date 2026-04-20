@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="DataAccess/DataAccess.csproj" Id="467f286e-8565-4d0e-8c26-f47701438b8a" />
+  <Project Path="Models/Models.csproj" Id="a22e7b38-3397-47d8-a4f4-6514897472dd" />
+  <Project Path="Smart Store For Clothes/Smart Store For Clothes.csproj" />
+</Solution>

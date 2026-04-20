@@ -1,0 +1,75 @@
+﻿@model Models.VM.CreateCategoryVM
+
+@{
+    ViewData["Title"] = "Create Category";
+    ViewData["PageTitle"] = "Create Category";
+    ViewData["PageDescription"] = "Add a new category with image and description";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<link rel="stylesheet" href="/css/Admin/categories.css" />
+
+<section class="category-form-page">
+    <div class="category-form-card">
+
+        <!-- Preview Image -->
+        <div style="margin-bottom:20px;">
+            <label style="font-weight:600;">Preview</label><br />
+            <img id="imagePreview"
+                 src="/images/category-placeholder.png"
+                 style="width:120px; height:120px; object-fit:cover; border-radius:12px; margin-top:10px;" />
+        </div>
+
+        <form asp-action="Create" method="post" enctype="multipart/form-data">
+
+            <div class="form-group">
+                <label asp-for="Name"></label>
+                <input asp-for="Name" class="form-input" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Description"></label>
+                <textarea asp-for="Description" class="form-input form-textarea"></textarea>
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="ImageFile">Category Image</label>
+                <input asp-for="ImageFile" type="file" class="form-input" id="imageInput" accept="image/*" />
+                <span asp-validation-for="ImageFile" class="text-danger"></span>
+            </div>
+
+            <div class="form-buttons">
+                <button type="submit" class="save-btn">Create</button>
+                <a asp-action="Index" class="cancel-btn">Back to List</a>
+            </div>
+
+        </form>
+    </div>
+</section>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        const imageInput = document.getElementById('imageInput');
+        const imagePreview = document.getElementById('imagePreview');
+
+        imageInput.addEventListener('change', function () {
+            const file = this.files[0];
+
+            if (file) {
+                const reader = new FileReader();
+
+                reader.onload = function (e) {
+                    imagePreview.src = e.target.result;
+                };
+
+                reader.readAsDataURL(file);
+            }
+        });
+    </script>
+}

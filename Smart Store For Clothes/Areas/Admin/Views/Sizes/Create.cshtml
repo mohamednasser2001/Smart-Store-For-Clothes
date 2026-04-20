@@ -1,0 +1,35 @@
+﻿@model Models.Entities.Size
+
+@{
+    ViewData["Title"] = "Create Size";
+    ViewData["PageTitle"] = "Create Size";
+    ViewData["PageDescription"] = "Add a new size";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<link rel="stylesheet" href="/css/Admin/sizes.css" />
+
+<section class="size-form-page">
+    <div class="size-form-card">
+        <form asp-action="Create" method="post">
+
+            <div class="form-group">
+                <label asp-for="Name"></label>
+                <input asp-for="Name" class="form-input" placeholder="Ex: S, M, L, XL" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+
+            <div class="form-buttons">
+                <button type="submit" class="save-btn">Create</button>
+                <a asp-action="Index" class="cancel-btn">Back</a>
+            </div>
+
+        </form>
+    </div>
+</section>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

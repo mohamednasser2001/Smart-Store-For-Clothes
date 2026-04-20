@@ -1,0 +1,108 @@
+﻿@model Models.VM.ProductsIndexVM
+
+@{
+    ViewData["Title"] = "Products";
+    ViewData["PageTitle"] = "Products";
+    ViewData["PageDescription"] = "Manage all products from here";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<link rel="stylesheet" href="/css/Admin/products.css" />
+
+<section class="products-page">
+    <div class="products-top">
+        <a asp-area="Admin" asp-controller="Products" asp-action="Create" class="add-product-btn">
+            <span class="plus-icon">+</span>
+            Add Product
+        </a>
+    </div>
+
+    <div class="products-list">
+        @if (Model.Products != null && Model.Products.Any())
+        {
+            @foreach (var product in Model.Products)
+            {
+                <div class="product-card">
+                    <div class="product-left">
+                        <div class="product-image-box">
+                            <img src="@(string.IsNullOrEmpty(product.ImageUrl) ? "/images/category-placeholder.png" : product.ImageUrl)" alt="Product Image" />
+                        </div>
+
+                        <div class="product-info">
+                            <h3>@product.Name</h3>
+                            <p class="product-category">Category: @product.CategoryName</p>
+                            <p class="product-price">Price: @product.Price.ToString("0.00")</p>
+                        </div>
+                    </div>
+
+                    <div class="product-actions">
+                        <a asp-action="Edit" asp-route-id="@product.Id" class="edit-btn">Edit</a>
+
+                        <a asp-action="ManageSizes" asp-route-id="@product.Id" class="manage-sizes-btn">Sizes</a>
+
+                        <form asp-action="DeleteConfirmed" asp-route-id="@product.Id" method="post" class="delete-form">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="delete-btn">Delete</button>
+                        </form>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="content-box">
+                <h3>No Products Yet</h3>
+                <p>Start by adding your first product.</p>
+            </div>
+        }
+    </div>
+    @if (Model.TotalPages > 1)
+    {
+        <div class="pagination-container">
+            @if (Model.CurrentPage > 1)
+            {
+                <a asp-action="Index" asp-route-page="@(Model.CurrentPage - 1)" class="pagination-btn">Previous</a>
+            }
+
+            @for (int i = 1; i <= Model.TotalPages; i++)
+            {
+                <a asp-action="Index"
+                       asp-route-page="@i"
+                       class="pagination-btn @(i == Model.CurrentPage ? "active-page" : "")">
+                    @i
+                </a>
+            }
+
+            @if (Model.CurrentPage < Model.TotalPages)
+            {
+                <a asp-action="Index" asp-route-page="@(Model.CurrentPage + 1)" class="pagination-btn">Next</a>
+            }
+        </div>
+    }
+</section>
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        document.querySelectorAll('.delete-form').forEach(form => {
+        form.addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        Swal.fire({
+        title: 'Are you sure?',
+        text: "This product will be deleted permanently!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#5b4df3',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, delete it',
+        cancelButtonText: 'Cancel'
+        }).then((result) => {
+        if (result.isConfirmed) {
+        form.submit();
+        }
+        });
+        });
+        });
+    </script>
+}

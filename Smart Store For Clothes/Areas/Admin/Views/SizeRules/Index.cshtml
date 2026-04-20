@@ -1,0 +1,69 @@
+﻿@model IEnumerable<Models.VM.SizeRuleCardVM>
+
+@{
+    ViewData["Title"] = "Size Rules";
+    ViewData["PageTitle"] = "Size Rules";
+    ViewData["PageDescription"] = "Manage size recommendation rules";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<link rel="stylesheet" href="/css/Admin/sizes.css" />
+
+<section class="sizes-page">
+    <div class="sizes-top">
+        <a asp-action="Create" class="add-size-btn">
+            <span class="plus-icon">+</span>
+            Add Rule
+        </a>
+    </div>
+
+    <div class="sizes-list">
+        @foreach (var rule in Model)
+        {
+            <div class="size-card">
+                <div class="size-info">
+                    <h3>@rule.SizeName</h3>
+                    <p>Height: @rule.MinHeight - @rule.MaxHeight</p>
+                    <p>Weight: @rule.MinWeight - @rule.MaxWeight</p>
+                    <p>Age: @rule.MinAge - @rule.MaxAge</p>
+                </div>
+
+                <div class="size-actions">
+                    <a asp-action="Edit" asp-route-id="@rule.Id" class="edit-btn">Edit</a>
+                    <button class="delete-btn" data-id="@rule.Id">Delete</button>
+                </div>
+            </div>
+        }
+    </div>
+</section>
+
+@section Scripts {
+    <script>
+        document.querySelectorAll(".delete-btn").forEach(btn => {
+            btn.addEventListener("click", function () {
+                let id = this.getAttribute("data-id");
+
+                Swal.fire({
+                    title: "Are you sure?",
+                    text: "This rule will be deleted!",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonText: "Yes, delete it!"
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        fetch(`/Admin/SizeRules/Delete/${id}`, {
+                            method: "POST"
+                        })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.success) {
+                                Swal.fire("Deleted!", "", "success")
+                                    .then(() => location.reload());
+                            }
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+}

@@ -1,0 +1,47 @@
+﻿@model Models.VM.ManageProductSizesVM
+
+@{
+    ViewData["Title"] = "Manage Product Sizes";
+    ViewData["PageTitle"] = "Manage Sizes";
+    ViewData["PageDescription"] = $"Manage sizes for {Model.ProductName}";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<link rel="stylesheet" href="/css/Admin/products.css" />
+
+<section class="product-form-page">
+    <div class="product-form-card">
+        <h3 style="margin-bottom:20px;">Product: @Model.ProductName</h3>
+
+        <form asp-action="ManageSizes" method="post">
+            <input asp-for="ProductId" type="hidden" />
+            <input asp-for="ProductName" type="hidden" />
+
+            <div class="sizes-management-list">
+                @for (int i = 0; i < Model.Sizes.Count; i++)
+                {
+                    <div class="size-manage-row">
+                        <input asp-for="Sizes[i].SizeId" type="hidden" />
+                        <input asp-for="Sizes[i].SizeName" type="hidden" />
+
+                        <div class="size-check">
+                            <input asp-for="Sizes[i].IsSelected" />
+                            <label>@Model.Sizes[i].SizeName</label>
+                        </div>
+
+                        <div class="size-quantity">
+                            <label>Quantity</label>
+                            <input asp-for="Sizes[i].QuantityInStock" class="form-input" type="number" min="0" />
+                            <span asp-validation-for="Sizes[i].QuantityInStock" class="text-danger"></span>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <div class="form-buttons" style="margin-top:20px;">
+                <button type="submit" class="save-btn">Save Sizes</button>
+                <a asp-action="Index" class="cancel-btn">Back to Products</a>
+            </div>
+        </form>
+    </div>
+</section>

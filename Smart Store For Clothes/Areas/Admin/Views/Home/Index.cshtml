@@ -1,0 +1,41 @@
+﻿@model Models.VM.DashboardVM
+@{
+    ViewData["Title"] = "Admin Dashboard";
+    ViewData["PageTitle"] = "Dashboard";
+    ViewData["PageDescription"] = "Welcome to Smart Store For Clothes Admin Panel";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<section class="cards-section">
+    <div class="card">
+        <h3>Categories</h3>
+        <p>@Model.CategoriesCount</p>
+    </div>
+
+    <div class="card">
+        <h3>Products</h3>
+        <p>@Model.ProductsCount</p>
+    </div>
+
+    <div class="card">
+        <h3>Sizes</h3>
+        <p>@Model.SizesCount</p>
+    </div>
+
+    <div class="card">
+        <h3>Orders Later</h3>
+        <p>0</p>
+    </div>
+</section>
+
+<section class="dashboard-content">
+    <div class="content-box">
+        <h3>Overview</h3>
+        <p>This section will contain charts, latest products, and other admin data later.</p>
+    </div>
+
+    <div class="content-box">
+        <h3>Quick Actions</h3>
+        <p>Later we can add buttons here like Add Category, Add Product, and more.</p>
+    </div>
+</section>

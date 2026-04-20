@@ -1,0 +1,51 @@
+﻿@model Models.VM.SuggestSizeVM
+
+@{
+    ViewData["Title"] = "Suggest Size";
+}
+
+<link rel="stylesheet" href="/css/Customer/suggest-size.css" />
+
+<section class="suggest-size-page">
+    <div class="suggest-size-card">
+        <h1>Suggest Your Size</h1>
+        <p class="page-desc">Enter your height, weight, and age to get your recommended size.</p>
+
+        <form asp-action="SuggestSize" method="post">
+            @Html.AntiForgeryToken()
+
+            <div class="form-group">
+                <label asp-for="Height"></label>
+                <input asp-for="Height" class="form-input" placeholder="Enter your height in cm" />
+                <span asp-validation-for="Height" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Weight"></label>
+                <input asp-for="Weight" class="form-input" placeholder="Enter your weight in kg" />
+                <span asp-validation-for="Weight" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Age"></label>
+                <input asp-for="Age" class="form-input" placeholder="Enter your age" />
+                <span asp-validation-for="Age" class="text-danger"></span>
+            </div>
+
+            <button type="submit" class="submit-btn">Suggest Size</button>
+        </form>
+
+        @if (!string.IsNullOrEmpty(Model.RecommendedSize))
+        {
+            <div class="result-box">
+                <h3>Recommended Size: @Model.RecommendedSize</h3>
+            </div>
+        }
+    </div>
+</section>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

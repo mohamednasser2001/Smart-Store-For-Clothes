@@ -1,0 +1,149 @@
+﻿@model Models.VM.CustomerProductFilterVM
+
+@{
+    ViewData["Title"] = "Products";
+}
+
+<link rel="stylesheet" href="/css/Customer/customer-home.css" />
+
+<section class="customer-page">
+    <div class="customer-header">
+        <h1>Discover Our Products</h1>
+        <p>Find the perfect product for your style and your size.</p>
+    </div>
+
+    <div class="filters-bar">
+        <div class="filter-group">
+            <label for="heightInput">Height</label>
+            <input asp-for="Height" id="heightInput" class="filter-input" placeholder="Height in cm" />
+        </div>
+
+        <div class="filter-group">
+            <label for="weightInput">Weight</label>
+            <input asp-for="Weight" id="weightInput" class="filter-input" placeholder="Weight in kg" />
+        </div>
+
+        <div class="filter-group">
+            <label for="ageInput">Age</label>
+            <input asp-for="Age" id="ageInput" class="filter-input" placeholder="Your age" />
+        </div>
+
+        <div class="filter-group">
+            <label for="categorySelect">Category</label>
+            <select id="categorySelect" class="filter-input">
+                <option value="">All Categories</option>
+                @foreach (var category in Model.CategoriesList)
+                {
+                    <option value="@category.Value">@category.Text</option>
+                }
+            </select>
+        </div>
+    </div>
+
+    <div id="recommendedSizeBox" class="recommended-size-box"></div>
+
+    <div id="productsContainer" class="products-grid">
+        @if (Model.Products != null && Model.Products.Any())
+        {
+            @foreach (var product in Model.Products)
+            {
+                <a href="/Customer/Home/Details/@product.Id?height=@Model.Height&weight=@Model.Weight&age=@Model.Age" class="product-card-link">
+                    <div class="customer-product-card">
+                        <div class="customer-product-image">
+                            <img src="@(string.IsNullOrEmpty(product.ImageUrl) ? "/images/category-placeholder.png" : product.ImageUrl)" alt="@product.Name" />
+                        </div>
+
+                        <div class="customer-product-body">
+                            <div class="customer-product-category">@product.CategoryName</div>
+                            <div class="customer-product-name">@product.Name</div>
+                            <div class="customer-product-price">$@product.Price.ToString("0.00")</div>
+                        </div>
+                    </div>
+                </a>
+            }
+        }
+        else
+        {
+            <div class="empty-products">
+                <h3>No Products Found</h3>
+                <p>No products match your current filters.</p>
+            </div>
+        }
+    </div>
+</section>
+
+<script>
+    const heightInput = document.getElementById('heightInput');
+    const weightInput = document.getElementById('weightInput');
+    const ageInput = document.getElementById('ageInput');
+    const categorySelect = document.getElementById('categorySelect');
+    const productsContainer = document.getElementById('productsContainer');
+    const recommendedSizeBox = document.getElementById('recommendedSizeBox');
+
+    async function filterProducts() {
+        const height = heightInput.value;
+        const weight = weightInput.value;
+        const age = ageInput.value;
+        const categoryId = categorySelect.value;
+
+        const params = new URLSearchParams();
+
+        if (height) params.append('height', height);
+        if (weight) params.append('weight', weight);
+        if (age) params.append('age', age);
+        if (categoryId) params.append('categoryId', categoryId);
+
+        const response = await fetch(`/Customer/Home/FilterProducts?${params.toString()}`);
+        const data = await response.json();
+
+        if (data.recommendedSize) {
+            recommendedSizeBox.style.display = 'block';
+            recommendedSizeBox.textContent = `Recommended Size: ${data.recommendedSize}`;
+        } else {
+            recommendedSizeBox.style.display = 'none';
+            recommendedSizeBox.textContent = '';
+        }
+
+        productsContainer.innerHTML = '';
+
+        if (!data.products || data.products.length === 0) {
+            productsContainer.innerHTML = `
+                <div class="empty-products">
+                    <h3>No Products Found</h3>
+                    <p>No products match your current filters.</p>
+                </div>
+            `;
+            return;
+        }
+
+        data.products.forEach(product => {
+            productsContainer.innerHTML += `
+              <a href="/Customer/Home/Details/${product.id}?height=${height || ''}&weight=${weight || ''}&age=${age || ''}" class="product-card-link">
+                    <div class="customer-product-card">
+                        <div class="customer-product-image">
+                            <img src="${product.imageUrl ? product.imageUrl : '/images/category-placeholder.png'}" alt="${product.name}" />
+                        </div>
+
+                        <div class="customer-product-body">
+                            <div class="customer-product-category">${product.categoryName}</div>
+                            <div class="customer-product-name">${product.name}</div>
+                            <div class="customer-product-price">$${Number(product.price).toFixed(2)}</div>
+                        </div>
+                    </div>
+                </a>
+            `;
+        });
+    }
+
+    let typingTimer;
+
+    function debounceFilter() {
+        clearTimeout(typingTimer);
+        typingTimer = setTimeout(filterProducts, 350);
+    }
+
+    heightInput.addEventListener('input', debounceFilter);
+    weightInput.addEventListener('input', debounceFilter);
+    ageInput.addEventListener('input', debounceFilter);
+    categorySelect.addEventListener('change', filterProducts);
+</script>

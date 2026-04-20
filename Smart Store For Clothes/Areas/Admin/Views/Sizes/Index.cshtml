@@ -1,0 +1,76 @@
+﻿@model IEnumerable<Models.Entities.Size>
+
+@{
+    ViewData["Title"] = "Sizes";
+    ViewData["PageTitle"] = "Sizes";
+    ViewData["PageDescription"] = "Manage all sizes from here";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<link rel="stylesheet" href="/css/Admin/sizes.css" />
+
+<section class="sizes-page">
+    <div class="sizes-top">
+        <a asp-area="Admin" asp-controller="Sizes" asp-action="Create" class="add-size-btn">
+            <span class="plus-icon">+</span>
+            Add Size
+        </a>
+    </div>
+
+    <div class="sizes-list">
+        @if (Model != null && Model.Any())
+        {
+            @foreach (var size in Model)
+            {
+                <div class="size-card">
+                    <div class="size-info">
+                        <h3>@size.Name</h3>
+                    </div>
+
+                    <div class="size-actions">
+                        <a asp-action="Edit" asp-route-id="@size.Id" class="edit-btn">Edit</a>
+
+                        <form asp-action="DeleteConfirmed" asp-route-id="@size.Id" method="post" class="delete-form">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="delete-btn">Delete</button>
+                        </form>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="content-box">
+                <h3>No Sizes Yet</h3>
+                <p>Start by adding your first size.</p>
+            </div>
+        }
+    </div>
+</section>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        document.querySelectorAll('.delete-form').forEach(form => {
+        form.addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        Swal.fire({
+        title: 'Are you sure?',
+        text: "This size will be deleted permanently!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#5b4df3',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, delete it',
+        cancelButtonText: 'Cancel'
+        }).then((result) => {
+        if (result.isConfirmed) {
+        form.submit();
+        }
+        });
+        });
+        });
+    </script>
+}

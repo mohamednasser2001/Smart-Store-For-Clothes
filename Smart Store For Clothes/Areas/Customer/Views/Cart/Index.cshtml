@@ -1,0 +1,77 @@
+﻿@model Models.VM.CartVM
+
+@{
+    ViewData["Title"] = "My Shopping Cart";
+    decimal totalCartPrice = 0;
+}
+
+<link rel="stylesheet" href="~/css/Customer/cart.css" />
+
+<div class="container cart-container">
+    <h2 class="mb-4 fw-bold">Shopping Cart</h2>
+    
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="cart-card">
+         
+                @if (Model.Cart != null && Model.Cart.CartItems != null && Model.Cart.CartItems.Any())
+                {
+                    foreach (var item in Model.Cart.CartItems)
+                    {
+                        var itemTotal = item.Quantity * item.Product.Price;
+                        totalCartPrice += itemTotal;
+
+                        <div class="cart-item d-flex align-items-center">
+                            <img src="@item.Product.ImageUrl" class="product-img me-4" />
+                            <div class="flex-grow-1">
+                                <h5 class="product-name">@item.Product.Name</h5>
+                                @* هنا عرضنا اسم المقاس بدل الـ ID *@
+                                <p class="text-muted small mb-0">Size: <span class="fw-bold text-dark">@item.Size.Name</span></p>
+                                <span class="price-tag">@item.Product.Price.ToString("C")</span>
+                            </div>
+    
+                            <div class="text-end">
+                                @* أزرار التحكم في الكمية *@
+                                <div class="d-flex align-items-center justify-content-end mb-2">
+                                    <a asp-action="Minus" asp-route-cartItemId="@item.Id" class="btn btn-sm btn-outline-secondary px-2 py-0">-</a>
+                                    <span class="mx-3 fw-bold">@item.Quantity</span>
+                                    <a asp-action="Plus" asp-route-cartItemId="@item.Id" class="btn btn-sm btn-outline-secondary px-2 py-0">+</a>
+                                </div>
+                                <div class="fw-bold">@itemTotal.ToString("C")</div>
+                                @* زرار المسح *@
+                                <a asp-action="Remove" asp-route-cartItemId="@item.Id" class="text-danger small text-decoration-none">Remove</a>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="p-5 text-center">
+                        <h4>Your cart is empty!</h4>
+                        <a asp-controller="Home" asp-action="Index" class="btn btn-outline-primary mt-3">Continue Shopping</a>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="cart-summary shadow-sm">
+                <h4 class="mb-4">Order Summary</h4>
+                <div class="d-flex justify-content-between mb-3">
+                    <span>Subtotal</span>
+                    <span>@totalCartPrice.ToString("C")</span>
+                </div>
+                <div class="d-flex justify-content-between mb-3">
+                    <span>Shipping</span>
+                    <span class="text-success">Free</span>
+                </div>
+                <hr>
+                <div class="d-flex justify-content-between mb-4">
+                    <span class="fw-bold">Total</span>
+                    <span class="total-amount">@totalCartPrice.ToString("C")</span>
+                </div>
+                <button class="btn btn-light w-100 fw-bold py-3">Checkout Now</button>
+            </div>
+        </div>
+    </div>
+</div>

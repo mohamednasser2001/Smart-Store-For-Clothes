@@ -1,0 +1,76 @@
+﻿@model Models.VM.RegisterVM
+@{
+    ViewData["Title"] = "Register";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Register</title>
+    <link rel="stylesheet" href="~/css/Identity/Register.css" />
+</head>
+<body>
+    <div class="auth-page">
+        <div class="auth-card">
+            <div class="auth-header">
+                <h1>Create Account</h1>
+                <p>Join us and start your shopping journey</p>
+            </div>
+
+            <form asp-action="Register" method="post" class="auth-form">
+                @Html.AntiForgeryToken()
+
+                <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+
+                <div class="form-group">
+                    <label asp-for="Email"></label>
+                    <input asp-for="Email" class="form-control" placeholder="Enter your email" />
+                    <span asp-validation-for="Email" class="field-validation"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Password"></label>
+                    <div class="password-wrapper">
+                        <input asp-for="Password" class="form-control" placeholder="Create a password" id="registerPassword" />
+                        <button type="button" class="toggle-password" onclick="togglePassword('registerPassword', this)">Show</button>
+                    </div>
+                    <span asp-validation-for="Password" class="field-validation"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="ConfirmPassword"></label>
+                    <div class="password-wrapper">
+                        <input asp-for="ConfirmPassword" class="form-control" placeholder="Confirm your password" id="confirmPassword" />
+                        <button type="button" class="toggle-password" onclick="togglePassword('confirmPassword', this)">Show</button>
+                    </div>
+                    <span asp-validation-for="ConfirmPassword" class="field-validation"></span>
+                </div>
+
+                <button type="submit" class="auth-btn">Create Account</button>
+            </form>
+
+            <div class="auth-footer">
+                <p>Already have an account? <a asp-action="Login">Login</a></p>
+            </div>
+        </div>
+    </div>
+
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+            function togglePassword(inputId, button) {
+                const input = document.getElementById(inputId);
+
+                if (input.type === "password") {
+                    input.type = "text";
+                    button.textContent = "Hide";
+                } else {
+                    input.type = "password";
+                    button.textContent = "Show";
+                }
+            }
+    </script>
+</body>
+</html>

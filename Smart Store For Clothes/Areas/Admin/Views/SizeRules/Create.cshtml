@@ -1,0 +1,73 @@
+﻿@model Models.VM.SizeRuleVM
+
+@{
+    ViewData["Title"] = "Create Size Rule";
+    ViewData["PageTitle"] = "Create Size Rule";
+    ViewData["PageDescription"] = "Add a new size recommendation rule";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<link rel="stylesheet" href="/css/Admin/sizes.css" />
+
+<section class="size-form-page">
+    <div class="size-form-card">
+        <form asp-action="Create" method="post">
+
+            <div class="form-group">
+                <label asp-for="SizeId">Size</label>
+                <select asp-for="SizeId" asp-items="Model.SizesList" class="form-input">
+                    <option disabled selected>-- Select Size --</option>
+                </select>
+                <span asp-validation-for="SizeId" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="MinHeight">Min Height</label>
+                <input asp-for="MinHeight" class="form-input" />
+                <span asp-validation-for="MinHeight" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="MaxHeight">Max Height</label>
+                <input asp-for="MaxHeight" class="form-input" />
+                <span asp-validation-for="MaxHeight" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="MinWeight">Min Weight</label>
+                <input asp-for="MinWeight" class="form-input" />
+                <span asp-validation-for="MinWeight" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="MaxWeight">Max Weight</label>
+                <input asp-for="MaxWeight" class="form-input" />
+                <span asp-validation-for="MaxWeight" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="MinAge">Min Age</label>
+                <input asp-for="MinAge" class="form-input" />
+                <span asp-validation-for="MinAge" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="MaxAge">Max Age</label>
+                <input asp-for="MaxAge" class="form-input" />
+                <span asp-validation-for="MaxAge" class="text-danger"></span>
+            </div>
+
+            <div class="form-buttons">
+                <button type="submit" class="save-btn">Create</button>
+                <a asp-action="Index" class="cancel-btn">Back</a>
+            </div>
+
+        </form>
+    </div>
+</section>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

@@ -1,0 +1,60 @@
+﻿@model Models.VM.SizeRuleVM
+
+@{
+    ViewData["Title"] = "Edit Size Rule";
+    ViewData["PageTitle"] = "Edit Size Rule";
+    ViewData["PageDescription"] = "Update rule";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<link rel="stylesheet" href="/css/Admin/sizes.css" />
+
+<section class="size-form-page">
+    <div class="size-form-card">
+        <form asp-action="Edit" method="post">
+
+            <input asp-for="Id" type="hidden" />
+
+            <div class="form-group">
+                <label asp-for="SizeId">Size</label>
+                <select asp-for="SizeId" asp-items="Model.SizesList" class="form-input"></select>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="MinHeight"></label>
+                <input asp-for="MinHeight" class="form-input" />
+            </div>
+
+            <div class="form-group">
+                <label asp-for="MaxHeight"></label>
+                <input asp-for="MaxHeight" class="form-input" />
+            </div>
+
+            <div class="form-group">
+                <label asp-for="MinWeight"></label>
+                <input asp-for="MinWeight" class="form-input" />
+            </div>
+
+            <div class="form-group">
+                <label asp-for="MaxWeight"></label>
+                <input asp-for="MaxWeight" class="form-input" />
+            </div>
+
+            <div class="form-group">
+                <label asp-for="MinAge"></label>
+                <input asp-for="MinAge" class="form-input" />
+            </div>
+
+            <div class="form-group">
+                <label asp-for="MaxAge"></label>
+                <input asp-for="MaxAge" class="form-input" />
+            </div>
+
+            <div class="form-buttons">
+                <button type="submit" class="save-btn">Save</button>
+                <a asp-action="Index" class="cancel-btn">Back</a>
+            </div>
+
+        </form>
+    </div>
+</section>

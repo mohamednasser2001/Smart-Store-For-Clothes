@@ -1,0 +1,136 @@
+﻿using DataAccess.Data;
+using DataAccess.Repositories.IRepositories;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Models.Entities;
+using Models.VM;
+
+namespace Smart_Store_For_Clothes.Areas.Customer.Controllers
+{
+    [Area("Customer")]
+    [Authorize]
+    public class CartController : Controller
+    {
+        private readonly IUnitOfWork _unitOfWork;
+        private readonly UserManager<IdentityUser> _userManager;
+
+        public CartController(IUnitOfWork unitOfWork, UserManager<IdentityUser> userManager)
+        {
+            _unitOfWork = unitOfWork;
+            _userManager = userManager;
+        }
+
+        public IActionResult Index()
+        {
+            var userId = _userManager.GetUserId(User);
+
+            var cart = _unitOfWork.Carts.GetAll()
+                .FirstOrDefault(u => u.UserId == userId);
+
+            if (cart != null)
+            {
+                cart.CartItems = _unitOfWork.CartItems.GetAll()
+                    .Where(ci => ci.CartId == cart.Id)
+                    .ToList();
+
+                foreach (var item in cart.CartItems)
+                {
+                    item.Product = _unitOfWork.Products.GetById(item.ProductId);
+                    // السطر ده عشان نجيب بيانات المقاس
+                    item.Size = _unitOfWork.Sizes.GetById(item.SizeId);
+                }
+            }
+            else
+            {
+                cart = new Cart { UserId = userId, CartItems = new List<CartItem>() };
+            }
+
+            CartVM cartVM = new CartVM() { Cart = cart };
+            return View(cartVM);
+        }
+
+        [HttpPost]
+        [Authorize]
+        public IActionResult AddToCart(int productId, int sizeId, int quantity = 1)
+        {
+            var userId = _userManager.GetUserId(User);
+
+            var cart = _unitOfWork.Carts.GetAll()
+                .FirstOrDefault(c => c.UserId == userId);
+
+            if (cart == null)
+            {
+                cart = new Cart
+                {
+                    UserId = userId
+                };
+
+                _unitOfWork.Carts.Add(cart);
+                _unitOfWork.Save();
+            }
+
+            var cartItem = _unitOfWork.CartItems.GetAll()
+                .FirstOrDefault(ci => ci.CartId == cart.Id
+                                   && ci.ProductId == productId
+                                   && ci.SizeId == sizeId);
+
+            if (cartItem != null)
+            {
+                cartItem.Quantity += quantity;
+                _unitOfWork.CartItems.Update(cartItem);
+            }
+            else
+            {
+                cartItem = new CartItem
+                {
+                    CartId = cart.Id,
+                    ProductId = productId,
+                    SizeId = sizeId,
+                    Quantity = quantity
+                };
+
+                _unitOfWork.CartItems.Add(cartItem);
+            }
+
+            _unitOfWork.Save();
+
+            return RedirectToAction("Index");
+        }
+
+        public IActionResult Plus(int cartItemId)
+        {
+            var cartItem = _unitOfWork.CartItems.GetById(cartItemId);
+            cartItem.Quantity += 1;
+            _unitOfWork.CartItems.Update(cartItem);
+            _unitOfWork.Save();
+            return RedirectToAction(nameof(Index));
+        }
+
+        public IActionResult Minus(int cartItemId)
+        {
+            var cartItem = _unitOfWork.CartItems.GetById(cartItemId);
+
+            if (cartItem.Quantity <= 1)
+            {
+                _unitOfWork.CartItems.Delete(cartItem);
+            }
+            else
+            {
+                cartItem.Quantity -= 1;
+                _unitOfWork.CartItems.Update(cartItem);
+            }
+
+            _unitOfWork.Save();
+            return RedirectToAction(nameof(Index));
+        }
+
+        public IActionResult Remove(int cartItemId)
+        {
+            var cartItem = _unitOfWork.CartItems.GetById(cartItemId);
+            _unitOfWork.CartItems.Delete(cartItem);
+            _unitOfWork.Save();
+            return RedirectToAction(nameof(Index));
+        }
+    }
+}

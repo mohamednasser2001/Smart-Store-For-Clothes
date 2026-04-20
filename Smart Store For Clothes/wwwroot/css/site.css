@@ -1,0 +1,178 @@
+html {
+  font-size: 14px;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+  margin-bottom: 60px;
+}
+
+.form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
+  color: var(--bs-secondary-color);
+  text-align: end;
+}
+
+.form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
+  text-align: start;
+}
+
+.custom-navbar {
+    background: rgba(255, 255, 255, 0.88);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid #e5e7eb;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.custom-navbar-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.custom-navbar-left {
+    display: flex;
+    align-items: center;
+    gap: 36px;
+}
+
+.custom-brand {
+    font-size: 28px;
+    font-weight: 800;
+    color: #111827;
+    text-decoration: none;
+    line-height: 1;
+}
+
+    .custom-brand:hover {
+        color: #4f46e5;
+    }
+
+.custom-nav-links {
+    display: flex;
+    align-items: center;
+    gap: 22px;
+}
+
+    .custom-nav-links a {
+        text-decoration: none;
+        color: #374151;
+        font-weight: 600;
+        transition: 0.2s ease;
+    }
+
+        .custom-nav-links a:hover {
+            color: #4f46e5;
+        }
+
+.custom-auth {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.user-greeting {
+    color: #111827;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.logout-form {
+    margin: 0;
+}
+
+.login-btn,
+.register-btn,
+.logout-btn,
+.cart-btn {
+    text-decoration: none;
+    padding: 10px 18px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 14px;
+    transition: 0.25s ease;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.login-btn {
+    background: transparent;
+    color: #111827;
+    border: 1px solid #d1d5db;
+}
+
+    .login-btn:hover {
+        background: #f3f4f6;
+        color: #111827;
+    }
+
+.register-btn,
+.logout-btn {
+    border: none;
+    background: linear-gradient(135deg, #4f46e5, #7c3aed);
+    color: white;
+}
+
+    .register-btn:hover,
+    .logout-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 8px 18px rgba(79, 70, 229, 0.22);
+        color: white;
+    }
+
+.cart-btn {
+    background: #f8fafc;
+    color: #111827;
+    border: 1px solid #e5e7eb;
+}
+
+    .cart-btn:hover {
+        background: #eef2ff;
+        color: #4f46e5;
+        border-color: #c7d2fe;
+    }
+
+.cart-icon {
+    font-size: 16px;
+    line-height: 1;
+}
+
+@media (max-width: 992px) {
+    .custom-navbar-container {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .custom-navbar-left {
+        width: 100%;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 16px;
+    }
+
+    .custom-auth {
+        flex-wrap: wrap;
+    }
+}

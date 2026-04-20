@@ -1,0 +1,338 @@
+﻿.products-page {
+    margin-top: 10px;
+}
+
+.products-top {
+    margin-bottom: 25px;
+}
+
+.add-product-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background-color: white;
+    color: #2f1f7a;
+    text-decoration: none;
+    padding: 16px 24px;
+    border-radius: 18px;
+    font-size: 22px;
+    font-weight: 700;
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.06);
+    transition: 0.3s;
+}
+
+    .add-product-btn:hover {
+        transform: translateY(-2px);
+    }
+
+.plus-icon {
+    font-size: 28px;
+    line-height: 1;
+}
+
+.products-list {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+}
+
+.product-card {
+    background-color: white;
+    border-radius: 22px;
+    padding: 22px 26px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.06);
+}
+
+.product-left {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.product-image-box {
+    width: 95px;
+    height: 95px;
+    border-radius: 18px;
+    background-color: #f4f4f8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+    .product-image-box img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+.product-info h3 {
+    font-size: 30px;
+    color: #2d2d2d;
+    margin-bottom: 8px;
+}
+
+.product-category,
+.product-price {
+    font-size: 18px;
+    color: #777;
+    margin-bottom: 4px;
+}
+
+
+
+.product-form-page {
+    margin-top: 10px;
+}
+
+.product-form-card {
+    background-color: white;
+    border-radius: 22px;
+    padding: 30px;
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.06);
+    max-width: 750px;
+}
+
+.form-group {
+    margin-bottom: 22px;
+    display: flex;
+    flex-direction: column;
+}
+
+    .form-group label {
+        font-size: 18px;
+        font-weight: 600;
+        color: #2d2d2d;
+        margin-bottom: 10px;
+    }
+
+.form-input {
+    width: 100%;
+    padding: 14px 16px;
+    border: 1px solid #ddd;
+    border-radius: 14px;
+    font-size: 16px;
+    outline: none;
+    transition: 0.3s;
+    font-family: inherit;
+    background-color: white;
+}
+
+    .form-input:focus {
+        border-color: #5b4df3;
+        box-shadow: 0 0 0 3px rgba(91, 77, 243, 0.12);
+    }
+
+.form-textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+.form-buttons {
+    display: flex;
+    gap: 14px;
+    margin-top: 10px;
+}
+
+.save-btn,
+.cancel-btn {
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    padding: 12px 24px;
+    border-radius: 14px;
+    font-size: 16px;
+    font-weight: 700;
+    transition: 0.3s;
+}
+
+.save-btn {
+    background-color: #5b4df3;
+    color: white;
+}
+
+.cancel-btn {
+    background-color: #f5f5fa;
+    color: #2d2d2d;
+    border: 1px solid #e5e5ef;
+}
+
+    .save-btn:hover,
+    .cancel-btn:hover {
+        transform: translateY(-2px);
+    }
+
+.text-danger {
+    color: #e74c3c;
+    font-size: 14px;
+    margin-top: 6px;
+}
+
+.delete-form {
+    margin: 0;
+}
+
+    .delete-form button {
+        width: 100%;
+        border: none;
+        cursor: pointer;
+    }
+
+.pagination-container {
+    display: flex;
+    gap: 10px;
+    margin-top: 25px;
+    flex-wrap: wrap;
+}
+
+.pagination-btn {
+    text-decoration: none;
+    background-color: white;
+    color: #2f1f7a;
+    padding: 10px 16px;
+    border-radius: 12px;
+    font-weight: 700;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    transition: 0.3s;
+}
+
+    .pagination-btn:hover {
+        transform: translateY(-2px);
+    }
+
+.active-page {
+    background-color: #5b4df3;
+    color: white;
+}
+
+.product-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-width: 140px;
+    align-items: stretch;
+}
+
+.edit-btn,
+.delete-btn {
+    width: 100%;
+    text-decoration: none;
+    text-align: center;
+    padding: 12px 18px;
+    border-radius: 14px;
+    font-size: 18px;
+    font-weight: 700;
+    transition: 0.3s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.edit-btn {
+    background-color: #5b4df3;
+    color: white;
+    border: none;
+}
+
+.delete-btn {
+    background-color: #f7f7fb;
+    color: #ff5a5f;
+    border: 1px solid #ececf2;
+}
+
+    .edit-btn:hover,
+    .delete-btn:hover {
+        transform: translateY(-2px);
+    }
+
+.delete-form {
+    margin: 0;
+    width: 100%;
+}
+
+    .delete-form button {
+        width: 100%;
+        border: 1px solid #ececf2;
+        cursor: pointer;
+        font-family: inherit;
+        background-color: #f7f7fb;
+        color: #ff5a5f;
+        padding: 12px 18px;
+        border-radius: 14px;
+        font-size: 18px;
+        font-weight: 700;
+        transition: 0.3s;
+    }
+
+        .delete-form button:hover {
+            transform: translateY(-2px);
+        }
+
+.manage-sizes-btn {
+    width: 100%;
+    text-decoration: none;
+    text-align: center;
+    padding: 12px 18px;
+    border-radius: 14px;
+    font-size: 18px;
+    font-weight: 700;
+    transition: 0.3s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f3f0ff;
+    color: #5b4df3;
+    border: 1px solid #ddd6ff;
+}
+
+    .manage-sizes-btn:hover {
+        transform: translateY(-2px);
+    }
+
+.sizes-management-list {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.size-manage-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    padding: 18px;
+    background-color: #f9f9fc;
+    border-radius: 16px;
+    border: 1px solid #ececf2;
+}
+
+.size-check {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+    .size-check input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+    }
+
+    .size-check label {
+        font-size: 18px;
+        font-weight: 600;
+        color: #2d2d2d;
+    }
+
+.size-quantity {
+    width: 180px;
+}
+
+    .size-quantity label {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 14px;
+        color: #777;
+    }

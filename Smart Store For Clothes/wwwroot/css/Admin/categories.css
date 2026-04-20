@@ -1,0 +1,255 @@
+﻿.categories-page {
+    margin-top: 10px;
+}
+
+.categories-top {
+    margin-bottom: 25px;
+}
+
+.add-category-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background-color: white;
+    color: #2f1f7a;
+    text-decoration: none;
+    padding: 16px 24px;
+    border-radius: 18px;
+    font-size: 22px;
+    font-weight: 700;
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.06);
+    transition: 0.3s;
+}
+
+    .add-category-btn:hover {
+        transform: translateY(-2px);
+    }
+
+.plus-icon {
+    font-size: 28px;
+    line-height: 1;
+}
+
+.categories-list {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+}
+
+.category-card {
+    background-color: white;
+    border-radius: 22px;
+    padding: 22px 26px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.06);
+}
+
+.category-left {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.category-image-box {
+    width: 95px;
+    height: 95px;
+    border-radius: 18px;
+    background-color: #f4f4f8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+    .category-image-box img {
+        width: 70px;
+        height: 70px;
+        object-fit: contain;
+    }
+
+.category-info h3 {
+    font-size: 30px;
+    color: #2d2d2d;
+    margin-bottom: 8px;
+}
+
+.category-info p {
+    font-size: 20px;
+    color: #777;
+}
+
+.category-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-width: 130px;
+}
+
+.edit-btn,
+.delete-btn {
+    text-decoration: none;
+    text-align: center;
+    padding: 12px 18px;
+    border-radius: 14px;
+    font-size: 18px;
+    font-weight: 700;
+    transition: 0.3s;
+}
+
+.edit-btn {
+    background-color: #5b4df3;
+    color: white;
+}
+
+.delete-btn {
+    background-color: #f7f7fb;
+    color: #ff5a5f;
+    border: 1px solid #ececf2;
+}
+
+    .edit-btn:hover,
+    .delete-btn:hover {
+        transform: translateY(-2px);
+    }
+/*this is create*/
+.category-form-page {
+    margin-top: 10px;
+}
+
+.category-form-card {
+    background-color: white;
+    border-radius: 22px;
+    padding: 30px;
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.06);
+    max-width: 750px;
+}
+
+.form-group {
+    margin-bottom: 22px;
+    display: flex;
+    flex-direction: column;
+}
+
+    .form-group label {
+        font-size: 18px;
+        font-weight: 600;
+        color: #2d2d2d;
+        margin-bottom: 10px;
+    }
+
+.form-input {
+    width: 100%;
+    padding: 14px 16px;
+    border: 1px solid #ddd;
+    border-radius: 14px;
+    font-size: 16px;
+    outline: none;
+    transition: 0.3s;
+    font-family: inherit;
+}
+
+    .form-input:focus {
+        border-color: #5b4df3;
+        box-shadow: 0 0 0 3px rgba(91, 77, 243, 0.12);
+    }
+
+.form-textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+.form-buttons {
+    display: flex;
+    gap: 14px;
+    margin-top: 10px;
+}
+
+.save-btn,
+.cancel-btn {
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    padding: 12px 24px;
+    border-radius: 14px;
+    font-size: 16px;
+    font-weight: 700;
+    transition: 0.3s;
+}
+
+.save-btn {
+    background-color: #5b4df3;
+    color: white;
+}
+
+.cancel-btn {
+    background-color: #f5f5fa;
+    color: #2d2d2d;
+    border: 1px solid #e5e5ef;
+}
+
+    .save-btn:hover,
+    .cancel-btn:hover {
+        transform: translateY(-2px);
+    }
+
+.text-danger {
+    color: #e74c3c;
+    font-size: 14px;
+    margin-top: 6px;
+}
+
+.pagination-container {
+    display: flex;
+    gap: 10px;
+    margin-top: 25px;
+    flex-wrap: wrap;
+}
+
+.pagination-btn {
+    text-decoration: none;
+    background-color: white;
+    color: #2f1f7a;
+    padding: 10px 16px;
+    border-radius: 12px;
+    font-weight: 700;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    transition: 0.3s;
+}
+
+    .pagination-btn:hover {
+        transform: translateY(-2px);
+    }
+
+.active-page {
+    background-color: #5b4df3;
+    color: white;
+}
+
+
+.current-image-preview {
+    width: 120px;
+    height: 120px;
+    border-radius: 18px;
+    overflow: hidden;
+    background-color: #f4f4f8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.current-image-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.delete-form {
+    margin: 0;
+}
+
+    .delete-form button {
+        width: 100%;
+        border: none;
+        cursor: pointer;
+    }

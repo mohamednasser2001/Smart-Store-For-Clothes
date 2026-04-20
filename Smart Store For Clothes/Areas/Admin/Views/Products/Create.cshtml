@@ -1,0 +1,86 @@
+﻿@model Models.VM.CreateProductVM
+
+@{
+    ViewData["Title"] = "Create Product";
+    ViewData["PageTitle"] = "Create Product";
+    ViewData["PageDescription"] = "Add a new product";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<link rel="stylesheet" href="/css/Admin/products.css" />
+
+<section class="product-form-page">
+    <div class="product-form-card">
+
+        <div style="margin-bottom:20px;">
+            <label style="font-weight:600;">Preview</label><br />
+            <img id="imagePreview"
+                 src="/images/category-placeholder.png"
+                 style="width:120px; height:120px; object-fit:cover; border-radius:12px; margin-top:10px;" />
+        </div>
+
+        <form asp-action="Create" method="post" enctype="multipart/form-data">
+            <div class="form-group">
+                <label asp-for="Name"></label>
+                <input asp-for="Name" class="form-input" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Description"></label>
+                <textarea asp-for="Description" class="form-input form-textarea"></textarea>
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Price"></label>
+                <input asp-for="Price" class="form-input" />
+                <span asp-validation-for="Price" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="CategoryId">Category</label>
+                <select asp-for="CategoryId" asp-items="Model.CategoriesList" class="form-input">
+                    <option disabled selected>-- Select Category --</option>
+                </select>
+                <span asp-validation-for="CategoryId" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="ImageFile">Product Image</label>
+                <input asp-for="ImageFile" type="file" class="form-input" id="imageInput" accept="image/*" />
+                <span asp-validation-for="ImageFile" class="text-danger"></span>
+            </div>
+
+            <div class="form-buttons">
+                <button type="submit" class="save-btn">Create</button>
+                <a asp-action="Index" class="cancel-btn">Back to List</a>
+            </div>
+        </form>
+    </div>
+</section>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        const imageInput = document.getElementById('imageInput');
+        const imagePreview = document.getElementById('imagePreview');
+
+        imageInput.addEventListener('change', function () {
+            const file = this.files[0];
+
+            if (file) {
+                const reader = new FileReader();
+
+                reader.onload = function (e) {
+                    imagePreview.src = e.target.result;
+                };
+
+                reader.readAsDataURL(file);
+            }
+        });
+    </script>
+}

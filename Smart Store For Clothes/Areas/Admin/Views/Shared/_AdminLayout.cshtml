@@ -1,0 +1,81 @@
+﻿@{
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Admin Panel</title>
+    <link rel="stylesheet" href="/css/Admin/dashboard.css" />
+</head>
+<body>
+    <div class="admin-dashboard">
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <h2>Admin</h2>
+            </div>
+
+            <ul class="sidebar-menu">
+                <li class="@(currentController == "Home" && currentAction == "Index" ? "active" : "")">
+                    <a href="/Admin/Home/Index">Dashboard</a>
+                </li>
+
+                <li class="@(currentController == "Categories" ? "active" : "")">
+                    <a href="/Admin/Categories/Index">Categories</a>
+                </li>
+
+                <li class="@(currentController == "Products" ? "active" : "")">
+                    <a href="/Admin/Products/Index">Products</a>
+                </li>
+
+                <li class="@(currentController == "Sizes" ? "active" : "")">
+                    <a href="/Admin/Sizes/Index">Sizes</a>
+                </li>
+                <li class="@(currentController == "SizeRules" ? "active" : "")">
+                    <a href="/Admin/SizeRules/Index">Size Rules</a>
+                </li>
+               
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="top-header">
+                <div class="header-text">
+                    <h1>@ViewData["PageTitle"]</h1>
+                    <p>@ViewData["PageDescription"]</p>
+                </div>
+
+                <div class="admin-profile">
+                    <img src="https://via.placeholder.com/45" alt="Admin" />
+                    <div class="admin-profile-info">
+                        <span class="admin-name">Admin</span>
+                        <small>My Profile</small>
+                    </div>
+                </div>
+            </div>
+
+            @RenderBody()
+        </main>
+    </div>
+    @await RenderSectionAsync("Scripts", required: false)
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    @if (TempData["success"] != null)
+    {
+        <script>
+            Swal.fire({
+            toast: true,
+            position: 'top-end',
+            icon: 'success',
+            title: '@TempData["success"]',
+            showConfirmButton: false,
+            timer: 2500,
+            timerProgressBar: true
+            });
+        </script>
+    }
+</body>
+</html>

@@ -1,0 +1,122 @@
+﻿@model Models.VM.CustomerProductDetailsVM
+
+@{
+    ViewData["Title"] = "Product Details";
+}
+
+<link rel="stylesheet" href="/css/Customer/product-details.css" />
+
+<section class="product-details-page">
+    <div class="product-phone-card">
+        <div class="product-image-wrapper">
+            <div class="top-icon left-icon">&#8592;</div>
+            <div class="top-icon right-icon">&#9825;</div>
+
+            <img src="@(string.IsNullOrEmpty(Model.ImageUrl) ? "/images/category-placeholder.png" : Model.ImageUrl)" alt="@Model.Name" />
+
+            <div class="discount-badge">-20%</div>
+        </div>
+
+        <div class="product-content">
+            <div class="brand-row">
+                <div class="brand-name">@Model.CategoryName</div>
+                <div class="rate-box">&#11088; 4.7</div>
+            </div>
+
+            <h1 class="product-title">@Model.Name</h1>
+
+            <div class="price-row">
+                <span class="old-price">$1,610.80</span>
+                <span class="new-price">$@Model.Price.ToString("0.00")</span>
+            </div>
+
+            @if (!string.IsNullOrWhiteSpace(Model.Description))
+            {
+                <p class="product-description">@Model.Description</p>
+            }
+
+            <div class="sizes-section">
+                <h3>Available Sizes</h3>
+
+                <input type="hidden" id="selectedSizeId" value="" />
+
+                <div class="sizes-list">
+                    @if (Model.Sizes != null && Model.Sizes.Any())
+                    {
+                        @foreach (var size in Model.Sizes)
+                        {
+                            var isRecommended = !string.IsNullOrEmpty(Model.RecommendedSize) &&
+                                                Model.RecommendedSize == size.SizeName;
+
+                            <button type="button"
+                                    class="size-pill selectable-size @(isRecommended ? "recommended-size-pill active-size" : "")"
+                                    data-size-id="@size.SizeId"
+                                    data-size-name="@size.SizeName">
+                                @size.SizeName
+                            </button>
+                        }
+                    }
+                    else
+                    {
+                        <p>No sizes available right now.</p>
+                    }
+                </div>
+
+                @if (!string.IsNullOrEmpty(Model.RecommendedSize))
+                {
+                    <div class="recommended-box">
+                        Recommended Size For You: <strong>@Model.RecommendedSize</strong>
+                    </div>
+                }
+            </div>
+
+            <div class="characteristics-row">
+                <span>Characteristics</span>
+                <span>&#709;</span>
+            </div>
+
+            <div class="action-buttons">
+                <button type="button" class="ar-btn">AR View</button>
+
+                <form asp-area="Customer" asp-controller="Cart" asp-action="AddToCart" method="post" id="addToCartForm">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="productId" value="@Model.Id" />
+                    <input type="hidden" name="sizeId" id="formSizeId" value="" />
+                    <input type="hidden" name="quantity" value="1" />
+                    <button type="submit" class="cart-btn">Add to Cart</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    const sizeButtons = document.querySelectorAll('.selectable-size');
+    const selectedSizeIdInput = document.getElementById('selectedSizeId');
+    const formSizeIdInput = document.getElementById('formSizeId');
+    const addToCartForm = document.getElementById('addToCartForm');
+
+    sizeButtons.forEach(button => {
+        if (button.classList.contains('active-size')) {
+            selectedSizeIdInput.value = button.dataset.sizeId;
+            formSizeIdInput.value = button.dataset.sizeId;
+        }
+
+        button.addEventListener('click', function () {
+            sizeButtons.forEach(btn => {
+                btn.classList.remove('active-size');
+            });
+
+            this.classList.add('active-size');
+            selectedSizeIdInput.value = this.dataset.sizeId;
+            formSizeIdInput.value = this.dataset.sizeId;
+        });
+    });
+
+    addToCartForm.addEventListener('submit', function (e) {
+        if (!formSizeIdInput.value) {
+            e.preventDefault();
+            alert('Please select a size first.');
+        }
+    });
+</script>
