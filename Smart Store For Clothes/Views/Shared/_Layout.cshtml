@@ -1,4 +1,9 @@
-﻿<!DOCTYPE html>
+﻿@using Microsoft.AspNetCore.Identity
+@using Models.Entities 
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
+@inject DataAccess.Repositories.IRepositories.IUnitOfWork UnitOfWork
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -10,6 +15,18 @@
     <link rel="stylesheet" href="~/Smart_Store_For_Clothes.styles.css" asp-append-version="true" />
 </head>
 <body>
+    @{
+        int cartCount = 0;
+        if (User.Identity != null && User.Identity.IsAuthenticated)
+        {
+            var userId = UserManager.GetUserId(User);
+            var cart = UnitOfWork.Carts.GetAll().FirstOrDefault(u => u.UserId == userId);
+            if (cart != null)
+            {
+                cartCount = UnitOfWork.CartItems.GetAll().Where(ci => ci.CartId == cart.Id).Sum(ci => ci.Quantity);
+            }
+        }
+    }
     <header>
         <nav class="custom-navbar">
             <div class="custom-navbar-container">
@@ -26,9 +43,15 @@
                 <div class="custom-auth">
                     @if (User.Identity != null && User.Identity.IsAuthenticated)
                     {
-                        <a class="cart-btn" asp-area="Customer" asp-controller="Cart" asp-action="Index">
+                        <a class="cart-btn position-relative" asp-area="Customer" asp-controller="Cart" asp-action="Index" style="text-decoration:none;">
                             <span class="cart-icon">🛒</span>
                             <span>Cart</span>
+                            @if (cartCount > 0)
+                            {
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem;">
+                                    @cartCount
+                                </span>
+                            }
                         </a>
 
                         <span class="user-greeting">Hello, @User.Identity.Name</span>

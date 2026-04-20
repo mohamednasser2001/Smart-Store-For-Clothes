@@ -176,3 +176,9 @@ body {
         flex-wrap: wrap;
     }
 }
+
+.cart-btn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+}
