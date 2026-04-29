@@ -1,13 +1,15 @@
-﻿using DataAccess.Repositories;
+﻿using System.IO;
+using DataAccess.Repositories;
 using DataAccess.Repositories.IRepositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Models.Entities;
 using Models.VM;
-using System.IO;
 
 namespace Smart_Store_For_Clothes.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    [Authorize(Roles = "Admin")]
     public class CategoriesController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
@@ -24,7 +26,6 @@ namespace Smart_Store_For_Clothes.Areas.Admin.Controllers
             int pageSize = 10;
 
             var categoriesQuery = _unitOfWork.Categories.GetAll();
-
             int totalCount = categoriesQuery.Count();
 
             var categories = categoriesQuery
@@ -33,8 +34,8 @@ namespace Smart_Store_For_Clothes.Areas.Admin.Controllers
                     Id = c.Id,
                     Name = c.Name,
                     Description = c.Description,
-                    ProductsCount = c.Products.Count,
-                    ImageUrl = c.ImageUrl
+                    ImageUrl = c.ImageUrl,
+                    ProductsCount = _unitOfWork.Products.GetAll().Count(p => p.CategoryId == c.Id)
                 })
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)

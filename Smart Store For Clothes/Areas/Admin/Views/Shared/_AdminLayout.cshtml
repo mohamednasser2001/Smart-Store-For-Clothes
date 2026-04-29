@@ -1,6 +1,7 @@
 ﻿@{
     var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
     var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+    var adminEmail = User.Identity?.Name ?? "Admin";
 }
 
 <!DOCTYPE html>
@@ -34,10 +35,14 @@
                 <li class="@(currentController == "Sizes" ? "active" : "")">
                     <a href="/Admin/Sizes/Index">Sizes</a>
                 </li>
+
                 <li class="@(currentController == "SizeRules" ? "active" : "")">
                     <a href="/Admin/SizeRules/Index">Size Rules</a>
                 </li>
-               
+
+                <li class="@(currentController == "Orders" ? "active" : "")">
+                    <a href="/Admin/Orders/Index">Orders Management</a>
+                </li>
             </ul>
         </aside>
 
@@ -49,10 +54,15 @@
                 </div>
 
                 <div class="admin-profile">
-                    <img src="https://via.placeholder.com/45" alt="Admin" />
+                    <img src="/images/logo.png" alt="Admin" />
+
                     <div class="admin-profile-info">
-                        <span class="admin-name">Admin</span>
-                        <small>My Profile</small>
+                        <span class="admin-name">@adminEmail</span>
+
+                        <form asp-area="Identity" asp-controller="Account" asp-action="Logout" method="post" class="admin-logout-form">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="admin-logout-btn">Logout</button>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -60,7 +70,9 @@
             @RenderBody()
         </main>
     </div>
+
     @await RenderSectionAsync("Scripts", required: false)
+
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     @if (TempData["success"] != null)

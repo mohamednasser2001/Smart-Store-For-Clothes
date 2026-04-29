@@ -229,3 +229,35 @@ body {
         line-height: 1.7;
         font-size: 22px;
     }
+
+
+.admin-profile {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.admin-profile-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.admin-name {
+    font-weight: 700;
+    font-size: 14px;
+}
+
+.admin-logout-form {
+    margin: 0;
+}
+
+.admin-logout-btn {
+    border: none;
+    background: #6c5ce7;
+    color: #fff;
+    padding: 5px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    cursor: pointer;
+}

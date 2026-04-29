@@ -20,6 +20,9 @@ namespace Models.Entities
 
         public string? ImageUrl { get; set; }
 
+        [Required]
+        public string Gender { get; set; } = null!;
+
         // FK
         public int CategoryId { get; set; }
 

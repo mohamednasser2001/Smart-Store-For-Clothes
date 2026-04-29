@@ -1,4 +1,5 @@
 ﻿using DataAccess.Repositories.IRepositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Models.Entities;
@@ -6,6 +7,7 @@ using Models.VM;
 namespace Smart_Store_For_Clothes.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    [Authorize(Roles = "Admin")]
     public class SizeRulesController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;

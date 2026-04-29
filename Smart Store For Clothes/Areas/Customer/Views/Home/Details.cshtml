@@ -22,7 +22,6 @@
                 <div class="brand-name">@Model.CategoryName</div>
                 <div class="rate-box">&#11088; 4.7</div>
             </div>
-
             <h1 class="product-title">@Model.Name</h1>
 
             <div class="price-row">
@@ -70,13 +69,9 @@
                 }
             </div>
 
-            <div class="characteristics-row">
-                <span>Characteristics</span>
-                <span>&#709;</span>
-            </div>
+            
 
             <div class="action-buttons">
-                <button type="button" class="ar-btn">AR View</button>
 
                 <form asp-area="Customer" asp-controller="Cart" asp-action="AddToCart" method="post" id="addToCartForm">
                     @Html.AntiForgeryToken()

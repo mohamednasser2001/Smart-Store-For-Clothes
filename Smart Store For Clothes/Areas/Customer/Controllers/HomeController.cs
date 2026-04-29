@@ -36,6 +36,7 @@ namespace Smart_Store_For_Clothes.Areas.Customer.Controllers
                         Description = p.Description,
                         Price = p.Price,
                         ImageUrl = p.ImageUrl,
+                        Gender = p.Gender,
                         CategoryName = _unitOfWork.Categories.GetById(p.CategoryId)?.Name ?? "No Category"
                     })
                     .ToList()
@@ -45,7 +46,7 @@ namespace Smart_Store_For_Clothes.Areas.Customer.Controllers
         }
 
         [HttpGet]
-        public IActionResult FilterProducts(int? height, int? weight, int? age, int? categoryId)
+        public IActionResult FilterProducts(int? height, int? weight, int? age, int? categoryId, string? gender)
         {
             string? recommendedSize = null;
 
@@ -74,6 +75,12 @@ namespace Smart_Store_For_Clothes.Areas.Customer.Controllers
                     .Where(p => p.CategoryId == categoryId.Value)
                     .ToList();
             }
+            if (!string.IsNullOrEmpty(gender))
+            {
+                productsQuery = productsQuery
+                    .Where(p => p.Gender == gender)
+                    .ToList();
+            }
 
             if (recommendedSizeId.HasValue)
             {
@@ -96,6 +103,7 @@ namespace Smart_Store_For_Clothes.Areas.Customer.Controllers
                     Description = p.Description,
                     Price = p.Price,
                     ImageUrl = p.ImageUrl,
+                    Gender = p.Gender,
                     CategoryName = _unitOfWork.Categories.GetById(p.CategoryId)?.Name ?? "No Category"
                 })
                 .ToList();

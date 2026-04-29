@@ -12,24 +12,21 @@
 <section class="product-form-page">
     <div class="product-form-card">
 
-        @if (!string.IsNullOrEmpty(Model.ExistingImageUrl))
-        {
-            <div style="margin-bottom:20px;">
-                <label style="font-weight:600;">Current Image</label><br />
+        <div style="margin-bottom:20px;">
+            <label style="font-weight:600;">Product Image</label><br />
+            @if (!string.IsNullOrEmpty(Model.ExistingImageUrl))
+            {
                 <img id="imagePreview"
                      src="@Model.ExistingImageUrl"
-                     style="width:120px; height:120px; object-fit:cover; border-radius:12px; margin-top:10px;" />
-            </div>
-        }
-        else
-        {
-            <div style="margin-bottom:20px;">
-                <label style="font-weight:600;">Current Image</label><br />
+                     style="width:120px; height:120px; object-fit:cover; border-radius:12px; margin-top:10px; border: 2px solid #ddd;" />
+            }
+            else
+            {
                 <img id="imagePreview"
                      src="/images/category-placeholder.png"
-                     style="width:120px; height:120px; object-fit:cover; border-radius:12px; margin-top:10px;" />
-            </div>
-        }
+                     style="width:120px; height:120px; object-fit:cover; border-radius:12px; margin-top:10px; border: 2px solid #ddd;" />
+            }
+        </div>
 
         <form asp-action="Edit" method="post" enctype="multipart/form-data">
             <input asp-for="Id" type="hidden" />
@@ -50,6 +47,14 @@
                 <label asp-for="Price"></label>
                 <input asp-for="Price" class="form-input" />
                 <span asp-validation-for="Price" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Gender">gendar</label>
+                <select asp-for="Gender" asp-items="Model.GenderList" class="form-input">
+                    <option disabled selected>-- Select Target Audience --</option>
+                </select>
+                <span asp-validation-for="Gender" class="text-danger"></span>
             </div>
 
             <div class="form-group">
