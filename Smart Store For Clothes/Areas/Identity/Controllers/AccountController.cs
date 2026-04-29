@@ -69,6 +69,13 @@ namespace Smart_Store_For_Clothes.Areas.Identity.Controllers
 
                 if (result.Succeeded)
                 {
+                    var user = await _userManager.FindByEmailAsync(model.Email);
+
+                    if (user != null && await _userManager.IsInRoleAsync(user, "Admin"))
+                    {
+                        return RedirectToAction("Index", "Home", new { area = "Admin" });
+                    }
+
                     return RedirectToAction("Index", "Home", new { area = "Customer" });
                 }
 

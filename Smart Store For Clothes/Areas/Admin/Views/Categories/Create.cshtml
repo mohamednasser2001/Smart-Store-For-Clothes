@@ -12,12 +12,11 @@
 <section class="category-form-page">
     <div class="category-form-card">
 
-        <!-- Preview Image -->
-        <div style="margin-bottom:20px;">
+        <div id="previewContainer" style="margin-bottom:20px; display:none;">
             <label style="font-weight:600;">Preview</label><br />
             <img id="imagePreview"
-                 src="/images/category-placeholder.png"
-                 style="width:120px; height:120px; object-fit:cover; border-radius:12px; margin-top:10px;" />
+                 src="#"
+                 style="width:120px; height:120px; object-fit:cover; border-radius:12px; margin-top:10px; border: 2px solid #ddd;" />
         </div>
 
         <form asp-action="Create" method="post" enctype="multipart/form-data">
@@ -57,6 +56,7 @@
     <script>
         const imageInput = document.getElementById('imageInput');
         const imagePreview = document.getElementById('imagePreview');
+        const previewContainer = document.getElementById('previewContainer');
 
         imageInput.addEventListener('change', function () {
             const file = this.files[0];
@@ -66,9 +66,12 @@
 
                 reader.onload = function (e) {
                     imagePreview.src = e.target.result;
+                    previewContainer.style.display = 'block'; // إظهار المعاينة عند اختيار ملف
                 };
 
                 reader.readAsDataURL(file);
+            } else {
+                previewContainer.style.display = 'none'; // إخفاء المعاينة إذا لم يتم اختيار ملف
             }
         });
     </script>

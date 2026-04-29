@@ -1,4 +1,5 @@
 ﻿using DataAccess.Repositories.IRepositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Models.Entities;
@@ -7,6 +8,7 @@ using Models.VM;
 namespace Smart_Store_For_Clothes.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    [Authorize(Roles = "Admin")]
     public class ProductsController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
@@ -74,26 +76,22 @@ namespace Smart_Store_For_Clothes.Areas.Admin.Controllers
         {
             if (ModelState.IsValid)
             {
-                string? imagePath = null;
+                string imagePath = "";
 
                 if (model.ImageFile != null)
                 {
-                    string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "images", "products");
-
-                    if (!Directory.Exists(uploadsFolder))
-                    {
-                        Directory.CreateDirectory(uploadsFolder);
-                    }
-
                     string fileName = Guid.NewGuid().ToString() + Path.GetExtension(model.ImageFile.FileName);
-                    string filePath = Path.Combine(uploadsFolder, fileName);
 
-                    using (var fileStream = new FileStream(filePath, FileMode.Create))
+                    string folderPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images");
+
+                    string filePath = Path.Combine(folderPath, fileName);
+
+                    using (var stream = new FileStream(filePath, FileMode.Create))
                     {
-                        model.ImageFile.CopyTo(fileStream);
+                        model.ImageFile.CopyTo(stream);
                     }
 
-                    imagePath = "/images/products/" + fileName;
+                    imagePath = "/images/" + fileName;
                 }
 
                 Product product = new Product
@@ -102,34 +100,24 @@ namespace Smart_Store_For_Clothes.Areas.Admin.Controllers
                     Description = model.Description,
                     Price = model.Price,
                     CategoryId = model.CategoryId,
+                    Gender = model.Gender,
                     ImageUrl = imagePath
                 };
 
                 _unitOfWork.Products.Add(product);
                 _unitOfWork.Save();
 
-                TempData["success"] = "Product created successfully";
                 return RedirectToAction(nameof(Index));
             }
 
-            model.CategoriesList = _unitOfWork.Categories.GetAll()
-                .Select(c => new SelectListItem
-                {
-                    Text = c.Name,
-                    Value = c.Id.ToString()
-                })
-                .ToList();
-
+            model.CategoriesList = GetCategoriesList();
             return View(model);
         }
 
-        [HttpGet]
         public IActionResult Edit(int id)
         {
             var product = _unitOfWork.Products.GetById(id);
-
-            if (product == null)
-                return NotFound();
+            if (product == null) return NotFound();
 
             CreateProductVM vm = new CreateProductVM
             {
@@ -138,19 +126,14 @@ namespace Smart_Store_For_Clothes.Areas.Admin.Controllers
                 Description = product.Description,
                 Price = product.Price,
                 CategoryId = product.CategoryId,
+                Gender = product.Gender,
                 ExistingImageUrl = product.ImageUrl,
-
-                CategoriesList = _unitOfWork.Categories.GetAll()
-                    .Select(c => new SelectListItem
-                    {
-                        Text = c.Name,
-                        Value = c.Id.ToString()
-                    })
-                    .ToList()
+                CategoriesList = GetCategoriesList()
             };
 
             return View(vm);
         }
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -159,48 +142,44 @@ namespace Smart_Store_For_Clothes.Areas.Admin.Controllers
             if (ModelState.IsValid)
             {
                 var product = _unitOfWork.Products.GetById(model.Id);
+                if (product == null) return NotFound();
 
-                if (product == null)
-                    return NotFound();
-
-                // update fields
                 product.Name = model.Name;
                 product.Description = model.Description;
                 product.Price = model.Price;
                 product.CategoryId = model.CategoryId;
+                product.Gender = model.Gender;
 
-                // update image
+             
                 if (model.ImageFile != null)
                 {
-                    string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, "images", "products");
-
                     string fileName = Guid.NewGuid().ToString() + Path.GetExtension(model.ImageFile.FileName);
-                    string filePath = Path.Combine(uploadsFolder, fileName);
 
-                    using (var fileStream = new FileStream(filePath, FileMode.Create))
+                    string folderPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images");
+                    string filePath = Path.Combine(folderPath, fileName);
+
+                    using (var stream = new FileStream(filePath, FileMode.Create))
                     {
-                        model.ImageFile.CopyTo(fileStream);
+                        model.ImageFile.CopyTo(stream);
                     }
 
-                    product.ImageUrl = "/images/products/" + fileName;
+                    product.ImageUrl = "/images/" + fileName;
                 }
 
                 _unitOfWork.Products.Update(product);
                 _unitOfWork.Save();
 
-                TempData["success"] = "Product updated successfully";
                 return RedirectToAction(nameof(Index));
             }
 
-            model.CategoriesList = _unitOfWork.Categories.GetAll()
-                .Select(c => new SelectListItem
-                {
-                    Text = c.Name,
-                    Value = c.Id.ToString()
-                })
-                .ToList();
-
+            model.CategoriesList = GetCategoriesList();
             return View(model);
+        }
+
+
+        private IEnumerable<SelectListItem> GetCategoriesList()
+        {
+            return _unitOfWork.Categories.GetAll().Select(c => new SelectListItem { Text = c.Name, Value = c.Id.ToString() });
         }
 
         [HttpPost]

@@ -18,6 +18,8 @@ namespace DataAccess.Repositories
         public IRepository<SizeRecommendationRule> SizeRecommendationRules { get; private set; }
         public IRepository<Cart> Carts { get; private set; }
         public IRepository<CartItem> CartItems { get; private set; }
+        public IRepository<Order> Orders { get; private set; }
+        public IRepository<OrderItem> OrderItems { get; private set; }
 
         public UnitOfWork(ApplicationDbContext context)
         {
@@ -29,6 +31,8 @@ namespace DataAccess.Repositories
             SizeRecommendationRules = new Repository<SizeRecommendationRule>(_context);
             Carts = new Repository<Cart>(_context);
             CartItems = new Repository<CartItem>(_context);
+            Orders = new Repository<Order>(_context);
+            OrderItems = new Repository<OrderItem>(_context);
         }
 
         public void Save()

@@ -17,5 +17,6 @@ namespace Models.VM
         public string? ImageUrl { get; set; }
 
         public string CategoryName { get; set; } = null!;
+        public string Gender { get; set; } = null!;
     }
 }

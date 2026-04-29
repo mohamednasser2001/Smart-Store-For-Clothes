@@ -9,5 +9,6 @@ namespace Models.VM
         public int CategoriesCount { get; set; }
         public int ProductsCount { get; set; }
         public int SizesCount { get; set; }
+        public int PendingOrdersCount { get; set; }
     }
 }

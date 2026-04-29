@@ -8,12 +8,108 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Smart_Store_For_Clothes</title>
-    <script type="importmap"></script>
+    <title>@ViewData["Title"] - Smart Store</title>
+
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/Smart_Store_For_Clothes.styles.css" asp-append-version="true" />
+
+    <style>
+            /* 🔥 Navbar Design */
+            .custom-navbar {
+                background: #ffffff;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+                padding: 12px 30px;
+            }
+
+            .custom-navbar-container {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .custom-navbar-left {
+                display: flex;
+                align-items: center;
+                gap: 30px;
+            }
+
+            .custom-brand {
+                display: flex;
+                align-items: center;
+                font-weight: bold;
+                font-size: 20px;
+                color: #222;
+                text-decoration: none;
+            }
+
+                .custom-brand img {
+                    height: 40px;
+                    margin-right: 10px;
+                }
+
+            .custom-nav-links a {
+                text-decoration: none;
+                color: #555;
+                font-weight: 500;
+                transition: 0.3s;
+            }
+
+                .custom-nav-links a:hover {
+                    color: #000;
+                }
+
+            .custom-auth {
+                display: flex;
+                align-items: center;
+                gap: 15px;
+            }
+
+            .cart-btn {
+                display: flex;
+                align-items: center;
+                gap: 5px;
+                text-decoration: none;
+                background: #f5f5f5;
+                padding: 6px 12px;
+                border-radius: 20px;
+                color: #333;
+            }
+
+            .user-greeting {
+                font-size: 14px;
+                color: #666;
+            }
+
+            .logout-btn {
+                background: #6c5ce7;
+                border: none;
+                color: white;
+                padding: 6px 14px;
+                border-radius: 8px;
+            }
+
+            .login-btn, .register-btn {
+                text-decoration: none;
+                padding: 6px 12px;
+                border-radius: 8px;
+            }
+
+            .login-btn {
+                background: #eee;
+                color: #333;
+            }
+
+            .register-btn {
+                background: #6c5ce7;
+                color: white;
+            }
+
+            .logout-form {
+                margin: 0;
+            }
+    </style>
 </head>
+
 <body>
     @{
         int cartCount = 0;
@@ -30,8 +126,11 @@
     <header>
         <nav class="custom-navbar">
             <div class="custom-navbar-container">
+
+                <!-- 🔥 Logo + Brand -->
                 <div class="custom-navbar-left">
                     <a class="custom-brand" asp-area="Customer" asp-controller="Home" asp-action="Index">
+                        <img src="/images/logo.png" alt="logo" />
                         Smart Store
                     </a>
 
@@ -40,11 +139,12 @@
                     </div>
                 </div>
 
+                <!-- 🔥 Auth Section -->
                 <div class="custom-auth">
                     @if (User.Identity != null && User.Identity.IsAuthenticated)
                     {
-                        <a class="cart-btn position-relative" asp-area="Customer" asp-controller="Cart" asp-action="Index" style="text-decoration:none;">
-                            <span class="cart-icon">🛒</span>
+                        <a class="cart-btn" asp-area="Customer" asp-controller="Cart" asp-action="Index">
+                            <span>🛒</span>
                             <span>Cart</span>
                             @if (cartCount > 0)
                             {
@@ -67,23 +167,27 @@
                         <a class="register-btn" asp-area="Identity" asp-controller="Account" asp-action="Register">Register</a>
                     }
                 </div>
+
             </div>
         </nav>
     </header>
-    <div class="container">
+
+    <div class="container mt-4">
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
+    <footer class="border-top text-center text-muted mt-5 p-3">
         <div class="container">
-            &copy; 2026 - Smart_Store_For_Clothes - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            &copy; 2026 - Smart Store
         </div>
     </footer>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

@@ -70,7 +70,9 @@
                     <span class="fw-bold">Total</span>
                     <span class="total-amount">@totalCartPrice.ToString("C")</span>
                 </div>
-                <button class="btn btn-light w-100 fw-bold py-3">Checkout Now</button>
+                <a asp-area="Customer" asp-controller="Cart" asp-action="Checkout" class="checkout-btn">
+                    Checkout Now
+                </a>
             </div>
         </div>
     </div>

@@ -38,6 +38,18 @@
                 }
             </select>
         </div>
+
+        <!-- ✅ Gender Filter -->
+        <div class="filter-group">
+            <label for="genderSelect">Gender</label>
+            <select id="genderSelect" class="filter-input">
+                <option value="">All</option>
+                <option value="Men">Men</option>
+                <option value="Women">Women</option>
+                <option value="Boys">Boys</option>
+                <option value="Girls">Girls</option>
+            </select>
+        </div>
     </div>
 
     <div id="recommendedSizeBox" class="recommended-size-box"></div>
@@ -49,7 +61,8 @@
             {
                 <a href="/Customer/Home/Details/@product.Id?height=@Model.Height&weight=@Model.Weight&age=@Model.Age" class="product-card-link">
                     <div class="customer-product-card">
-                        <div class="customer-product-image">
+                        <div class="customer-product-image" style="position:relative;">
+                            <span class="gender-badge">@product.Gender</span>
                             <img src="@(string.IsNullOrEmpty(product.ImageUrl) ? "/images/category-placeholder.png" : product.ImageUrl)" alt="@product.Name" />
                         </div>
 
@@ -77,6 +90,8 @@
     const weightInput = document.getElementById('weightInput');
     const ageInput = document.getElementById('ageInput');
     const categorySelect = document.getElementById('categorySelect');
+    const genderSelect = document.getElementById('genderSelect'); // ✅ جديد
+
     const productsContainer = document.getElementById('productsContainer');
     const recommendedSizeBox = document.getElementById('recommendedSizeBox');
 
@@ -85,6 +100,7 @@
         const weight = weightInput.value;
         const age = ageInput.value;
         const categoryId = categorySelect.value;
+        const gender = genderSelect.value; // ✅ جديد
 
         const params = new URLSearchParams();
 
@@ -92,6 +108,7 @@
         if (weight) params.append('weight', weight);
         if (age) params.append('age', age);
         if (categoryId) params.append('categoryId', categoryId);
+        if (gender) params.append('gender', gender); // ✅ جديد
 
         const response = await fetch(`/Customer/Home/FilterProducts?${params.toString()}`);
         const data = await response.json();
@@ -120,9 +137,10 @@
             productsContainer.innerHTML += `
               <a href="/Customer/Home/Details/${product.id}?height=${height || ''}&weight=${weight || ''}&age=${age || ''}" class="product-card-link">
                     <div class="customer-product-card">
-                        <div class="customer-product-image">
-                            <img src="${product.imageUrl ? product.imageUrl : '/images/category-placeholder.png'}" alt="${product.name}" />
-                        </div>
+                            <div class="customer-product-image" style="position:relative;">
+                                <span class="gender-badge">${product.gender}</span>
+                                <img src="${product.imageUrl ? product.imageUrl : '/images/category-placeholder.png'}" alt="${product.name}" />
+                            </div>
 
                         <div class="customer-product-body">
                             <div class="customer-product-category">${product.categoryName}</div>
@@ -146,4 +164,5 @@
     weightInput.addEventListener('input', debounceFilter);
     ageInput.addEventListener('input', debounceFilter);
     categorySelect.addEventListener('change', filterProducts);
+    genderSelect.addEventListener('change', filterProducts); // ✅ جديد
 </script>

@@ -1,0 +1,107 @@
+﻿@model List<Models.Entities.Order>
+
+@{
+    ViewData["Title"] = "Orders Management";
+    
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<link rel="stylesheet" href="~/css/Admin/orders.css" />
+
+
+<div class="p-4 w-100">
+    <div class="container-fluid admin-orders-page">
+        <div class="admin-orders-header">
+            <div class="admin-orders-title">
+                <h1>Orders Management</h1>
+                <p>Track pending and accepted orders from one place.</p>
+            </div>
+
+            <div class="orders-stats">
+                <div class="stat-card pending">
+                    <span class="stat-label">Pending Orders</span>
+                    <span class="stat-value">@ViewBag.PendingCount</span>
+                </div>
+
+                <div class="stat-card accepted">
+                    <span class="stat-label">Accepted Orders</span>
+                    <span class="stat-value">@ViewBag.AcceptedCount</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="orders-table-card">
+            @if (Model != null && Model.Any())
+            {
+                <table class="table orders-table align-middle">
+                    <thead>
+                        <tr>
+                            <th>Order Id</th>
+                            <th>Customer</th>
+                            <th>Email</th>
+                            <th>Total</th>
+                            <th>Order Date</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var order in Model)
+                        {
+                            <tr>
+                                <td>
+                                    <span class="order-id-badge">#@order.Id</span>
+                                </td>
+
+                                <td>
+                                    <span class="customer-name">@order.FullName</span>
+                                </td>
+
+                                <td>
+                                    <span class="order-email">@order.Email</span>
+                                </td>
+
+                                <td>
+                                    <span class="order-total">$@order.Total.ToString("0.00")</span>
+                                </td>
+
+                                <td>@order.OrderDate.ToString("yyyy-MM-dd hh:mm tt")</td>
+
+                                <td>
+                                    @if (order.Status == "Pending")
+                                    {
+                                        <span class="order-status-badge pending-status">Pending</span>
+                                    }
+                                    else if (order.Status == "Accepted")
+                                    {
+                                        <span class="order-status-badge accepted-status">Accepted</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="order-status-badge default-status">@order.Status</span>
+                                    }
+                                </td>
+
+                                <td>
+                                    <a asp-area="Admin"
+                                           asp-controller="Orders"
+                                           asp-action="Details"
+                                           asp-route-id="@order.Id"
+                                           class="details-btn">
+                                        Details
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <div class="empty-orders">
+                    No orders found.
+                </div>
+            }
+        </div>
+    </div>
+</div>

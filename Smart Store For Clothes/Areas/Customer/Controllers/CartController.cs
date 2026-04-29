@@ -101,9 +101,27 @@ namespace Smart_Store_For_Clothes.Areas.Customer.Controllers
         public IActionResult Plus(int cartItemId)
         {
             var cartItem = _unitOfWork.CartItems.GetById(cartItemId);
-            cartItem.Quantity += 1;
-            _unitOfWork.CartItems.Update(cartItem);
-            _unitOfWork.Save();
+
+            if (cartItem == null)
+            {
+                return RedirectToAction(nameof(Index));
+            }
+
+            var productSize = _unitOfWork.ProductSizes.GetAll()
+                .FirstOrDefault(ps => ps.ProductId == cartItem.ProductId && ps.SizeId == cartItem.SizeId);
+
+            if (productSize == null)
+            {
+                return RedirectToAction(nameof(Index));
+            }
+
+            if (cartItem.Quantity < productSize.QuantityInStock)
+            {
+                cartItem.Quantity += 1;
+                _unitOfWork.CartItems.Update(cartItem);
+                _unitOfWork.Save();
+            }
+
             return RedirectToAction(nameof(Index));
         }
 
@@ -131,6 +149,151 @@ namespace Smart_Store_For_Clothes.Areas.Customer.Controllers
             _unitOfWork.CartItems.Delete(cartItem);
             _unitOfWork.Save();
             return RedirectToAction(nameof(Index));
+        }
+
+        [Authorize]
+        public IActionResult Checkout()
+        {
+            var userId = _userManager.GetUserId(User);
+            var user = _userManager.GetUserAsync(User).Result;
+
+            var cart = _unitOfWork.Carts.GetAll()
+                .FirstOrDefault(c => c.UserId == userId);
+
+            if (cart == null)
+            {
+                return RedirectToAction("Index");
+            }
+
+            var cartItems = _unitOfWork.CartItems.GetAll()
+                .Where(ci => ci.CartId == cart.Id)
+                .ToList();
+
+            decimal subTotal = 0;
+
+            foreach (var item in cartItems)
+            {
+                var product = _unitOfWork.Products.GetById(item.ProductId);
+                if (product != null)
+                {
+                    subTotal += product.Price * item.Quantity;
+                }
+            }
+
+            CheckoutVM checkoutVM = new CheckoutVM
+            {
+                CartId = cart.Id,
+                Email = user?.Email ?? "",
+                ShippingCost = 0,
+                SubTotal = subTotal,
+                Total = subTotal
+            };
+
+            return View(checkoutVM);
+        }
+
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public IActionResult Checkout(CheckoutVM model)
+        {
+            var userId = _userManager.GetUserId(User);
+
+            var cart = _unitOfWork.Carts.GetAll()
+                .FirstOrDefault(c => c.UserId == userId);
+
+            if (cart == null)
+            {
+                return RedirectToAction("Index");
+            }
+
+            var cartItems = _unitOfWork.CartItems.GetAll()
+                .Where(ci => ci.CartId == cart.Id)
+                .ToList();
+
+            if (!cartItems.Any())
+            {
+                return RedirectToAction("Index");
+            }
+
+            decimal subTotal = 0;
+
+            foreach (var item in cartItems)
+            {
+                var product = _unitOfWork.Products.GetById(item.ProductId);
+                if (product != null)
+                {
+                    subTotal += product.Price * item.Quantity;
+                }
+            }
+
+            decimal shippingCost = 0;
+            decimal total = subTotal + shippingCost;
+
+            Order order = new Order
+            {
+                UserId = userId,
+                FullName = model.FullName,
+                Email = model.Email,
+                PhoneNumber = model.PhoneNumber,
+                City = model.City,
+                Address = model.Address,
+                SubTotal = subTotal,
+                ShippingCost = shippingCost,
+                Total = total,
+                OrderDate = DateTime.Now,
+                Status = "Pending"
+            };
+
+            _unitOfWork.Orders.Add(order);
+            _unitOfWork.Save();
+
+            foreach (var item in cartItems)
+            {
+                var product = _unitOfWork.Products.GetById(item.ProductId);
+
+                if (product != null)
+                {
+                    var productSize = _unitOfWork.ProductSizes.GetAll()
+                        .FirstOrDefault(ps => ps.ProductId == item.ProductId && ps.SizeId == item.SizeId);
+
+                    if (productSize == null || productSize.QuantityInStock < item.Quantity)
+                    {
+                        return RedirectToAction("Index");
+                    }
+
+                    productSize.QuantityInStock -= item.Quantity;
+                    _unitOfWork.ProductSizes.Update(productSize);
+
+                    OrderItem orderItem = new OrderItem
+                    {
+                        OrderId = order.Id,
+                        ProductId = item.ProductId,
+                        SizeId = item.SizeId,
+                        Quantity = item.Quantity,
+                        UnitPrice = product.Price,
+                        TotalPrice = product.Price * item.Quantity
+                    };
+
+                    _unitOfWork.OrderItems.Add(orderItem);
+                }
+            }
+
+            _unitOfWork.Save();
+            foreach (var item in cartItems)
+            {
+                _unitOfWork.CartItems.Delete(item);
+            }
+
+            _unitOfWork.Save();
+
+            return RedirectToAction("OrderSuccess");
+        }
+
+        [Authorize]
+        public IActionResult OrderSuccess()
+        {
+            return View();
         }
     }
 }

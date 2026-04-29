@@ -15,6 +15,8 @@ namespace DataAccess.Repositories.IRepositories
         IRepository<SizeRecommendationRule> SizeRecommendationRules { get; }
         IRepository<Cart> Carts { get; }
         IRepository<CartItem> CartItems { get; }
+        IRepository<Order> Orders { get; }
+        IRepository<OrderItem> OrderItems { get; }
         void Save();
     }
 }
