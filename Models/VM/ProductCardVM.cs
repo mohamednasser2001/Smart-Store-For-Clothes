@@ -18,5 +18,7 @@ namespace Models.VM
 
         public string CategoryName { get; set; } = null!;
         public string Gender { get; set; } = null!;
+        public double AverageRating { get; set; }
+        public int ReviewsCount { get; set; }
     }
 }

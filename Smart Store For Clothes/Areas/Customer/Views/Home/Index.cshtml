@@ -7,12 +7,14 @@
 <link rel="stylesheet" href="/css/Customer/customer-home.css" />
 
 <section class="customer-page">
+
     <div class="customer-header">
         <h1>Discover Our Products</h1>
         <p>Find the perfect product for your style and your size.</p>
     </div>
 
     <div class="filters-bar">
+
         <div class="filter-group">
             <label for="heightInput">Height</label>
             <input asp-for="Height" id="heightInput" class="filter-input" placeholder="Height in cm" />
@@ -39,7 +41,6 @@
             </select>
         </div>
 
-        <!-- ✅ Gender Filter -->
         <div class="filter-group">
             <label for="genderSelect">Gender</label>
             <select id="genderSelect" class="filter-input">
@@ -50,28 +51,67 @@
                 <option value="Girls">Girls</option>
             </select>
         </div>
+
     </div>
 
     <div id="recommendedSizeBox" class="recommended-size-box"></div>
 
     <div id="productsContainer" class="products-grid">
+
         @if (Model.Products != null && Model.Products.Any())
         {
             @foreach (var product in Model.Products)
             {
-                <a href="/Customer/Home/Details/@product.Id?height=@Model.Height&weight=@Model.Weight&age=@Model.Age" class="product-card-link">
+                <a href="/Customer/Home/Details/@product.Id?height=@Model.Height&weight=@Model.Weight&age=@Model.Age"
+                   class="product-card-link">
+
                     <div class="customer-product-card">
+
                         <div class="customer-product-image" style="position:relative;">
                             <span class="gender-badge">@product.Gender</span>
-                            <img src="@(string.IsNullOrEmpty(product.ImageUrl) ? "/images/category-placeholder.png" : product.ImageUrl)" alt="@product.Name" />
+                            <img src="@(string.IsNullOrEmpty(product.ImageUrl) ? "/images/category-placeholder.png" : product.ImageUrl)" />
                         </div>
 
                         <div class="customer-product-body">
+
                             <div class="customer-product-category">@product.CategoryName</div>
+
                             <div class="customer-product-name">@product.Name</div>
-                            <div class="customer-product-price">$@product.Price.ToString("0.00")</div>
+
+                            <!-- ⭐ Rating Section FIXED -->
+                            <div style="margin:6px 0; font-size:13px;">
+
+                                @if (product.ReviewsCount > 0)
+                                {
+                                    <div>
+                                        @for (int i = 1; i <= 5; i++)
+                                        {
+                                            <span style="color:@(i <= Math.Round(product.AverageRating) ? "gold" : "#ddd"); font-size:14px;">
+                                                ★
+                                            </span>
+                                        }
+                                    </div>
+
+                                    <small style="color:gray;">
+                                        @product.AverageRating.ToString("0.0") / 5
+                                        (@product.ReviewsCount review@(product.ReviewsCount > 1 ? "s" : ""))
+                                    </small>
+                                }
+                                else
+                                {
+                                    <small style="color:gray;">No reviews yet</small>
+                                }
+
+                            </div>
+
+                            <div class="customer-product-price">
+                                $@product.Price.ToString("0.00")
+                            </div>
+
                         </div>
+
                     </div>
+
                 </a>
             }
         }
@@ -82,6 +122,7 @@
                 <p>No products match your current filters.</p>
             </div>
         }
+
     </div>
 </section>
 
@@ -90,17 +131,18 @@
     const weightInput = document.getElementById('weightInput');
     const ageInput = document.getElementById('ageInput');
     const categorySelect = document.getElementById('categorySelect');
-    const genderSelect = document.getElementById('genderSelect'); // ✅ جديد
+    const genderSelect = document.getElementById('genderSelect');
 
     const productsContainer = document.getElementById('productsContainer');
     const recommendedSizeBox = document.getElementById('recommendedSizeBox');
 
     async function filterProducts() {
+
         const height = heightInput.value;
         const weight = weightInput.value;
         const age = ageInput.value;
         const categoryId = categorySelect.value;
-        const gender = genderSelect.value; // ✅ جديد
+        const gender = genderSelect.value;
 
         const params = new URLSearchParams();
 
@@ -108,7 +150,7 @@
         if (weight) params.append('weight', weight);
         if (age) params.append('age', age);
         if (categoryId) params.append('categoryId', categoryId);
-        if (gender) params.append('gender', gender); // ✅ جديد
+        if (gender) params.append('gender', gender);
 
         const response = await fetch(`/Customer/Home/FilterProducts?${params.toString()}`);
         const data = await response.json();
@@ -118,7 +160,6 @@
             recommendedSizeBox.textContent = `Recommended Size: ${data.recommendedSize}`;
         } else {
             recommendedSizeBox.style.display = 'none';
-            recommendedSizeBox.textContent = '';
         }
 
         productsContainer.innerHTML = '';
@@ -134,20 +175,56 @@
         }
 
         data.products.forEach(product => {
+
+            let starsHtml = '';
+
+            if (product.reviewsCount > 0) {
+                const rounded = Math.round(product.averageRating);
+
+                for (let i = 1; i <= 5; i++) {
+                    starsHtml += `<span style="color:${i <= rounded ? 'gold' : '#ddd'}; font-size:14px;">★</span>`;
+                }
+            }
+
             productsContainer.innerHTML += `
-              <a href="/Customer/Home/Details/${product.id}?height=${height || ''}&weight=${weight || ''}&age=${age || ''}" class="product-card-link">
+                <a href="/Customer/Home/Details/${product.id}?height=${height || ''}&weight=${weight || ''}&age=${age || ''}"
+                   class="product-card-link">
+
                     <div class="customer-product-card">
-                            <div class="customer-product-image" style="position:relative;">
-                                <span class="gender-badge">${product.gender}</span>
-                                <img src="${product.imageUrl ? product.imageUrl : '/images/category-placeholder.png'}" alt="${product.name}" />
-                            </div>
+
+                        <div class="customer-product-image" style="position:relative;">
+                            <span class="gender-badge">${product.gender}</span>
+                            <img src="${product.imageUrl || '/images/category-placeholder.png'}" />
+                        </div>
 
                         <div class="customer-product-body">
+
                             <div class="customer-product-category">${product.categoryName}</div>
+
                             <div class="customer-product-name">${product.name}</div>
-                            <div class="customer-product-price">$${Number(product.price).toFixed(2)}</div>
+
+                            <div style="margin:6px 0; font-size:13px;">
+
+                                ${product.reviewsCount > 0
+                                    ? `
+                                        <div>${starsHtml}</div>
+                                        <small style="color:gray;">
+                                            ${product.averageRating.toFixed(1)} / 5 (${product.reviewsCount})
+                                        </small>
+                                    `
+                                    : `<small style="color:gray;">No reviews yet</small>`
+                                }
+
+                            </div>
+
+                            <div class="customer-product-price">
+                                $${Number(product.price).toFixed(2)}
+                            </div>
+
                         </div>
+
                     </div>
+
                 </a>
             `;
         });
@@ -164,5 +241,5 @@
     weightInput.addEventListener('input', debounceFilter);
     ageInput.addEventListener('input', debounceFilter);
     categorySelect.addEventListener('change', filterProducts);
-    genderSelect.addEventListener('change', filterProducts); // ✅ جديد
+    genderSelect.addEventListener('change', filterProducts);
 </script>

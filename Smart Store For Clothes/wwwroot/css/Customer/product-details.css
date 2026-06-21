@@ -228,3 +228,33 @@
     color: white !important;
     border-color: #111 !important;
 }
+
+
+.review-card {
+    border: 1px solid #eee;
+    padding: 12px;
+    margin-bottom: 12px;
+    border-radius: 12px;
+    background: #fff;
+    transition: 0.2s;
+}
+
+    .review-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+    }
+
+.review-form textarea {
+    width: 100%;
+    height: 80px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    resize: none;
+}
+
+.review-form select {
+    padding: 6px;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+}

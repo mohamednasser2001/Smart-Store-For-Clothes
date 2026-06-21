@@ -22,6 +22,7 @@ namespace DataAccess.Data
         public DbSet<Cart> Cart { get; set; }
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderItem> OrderItems { get; set; }
+        public DbSet<ProductReview> ProductReviews { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -91,6 +92,19 @@ namespace DataAccess.Data
                 .HasOne(oi => oi.Size)
                 .WithMany()
                 .HasForeignKey(oi => oi.SizeId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+
+            modelBuilder.Entity<ProductReview>()
+                .HasOne(r => r.Product)
+                .WithMany()
+                .HasForeignKey(r => r.ProductId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<ProductReview>()
+                .HasOne(r => r.User)
+                .WithMany()
+                .HasForeignKey(r => r.UserId)
                 .OnDelete(DeleteBehavior.Restrict);
         }
     }

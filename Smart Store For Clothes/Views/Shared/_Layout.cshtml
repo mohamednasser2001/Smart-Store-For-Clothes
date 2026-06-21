@@ -1,5 +1,5 @@
 ﻿@using Microsoft.AspNetCore.Identity
-@using Models.Entities 
+@using Models.Entities
 @inject SignInManager<IdentityUser> SignInManager
 @inject UserManager<IdentityUser> UserManager
 @inject DataAccess.Repositories.IRepositories.IUnitOfWork UnitOfWork
@@ -86,6 +86,8 @@
                 color: white;
                 padding: 6px 14px;
                 border-radius: 8px;
+                text-decoration: none;
+                display: inline-block;
             }
 
             .login-btn, .register-btn {
@@ -113,6 +115,11 @@
 <body>
     @{
         int cartCount = 0;
+
+        string phpUserName = Context.Request.Cookies["php_user_name"];
+        string phpUserEmail = Context.Request.Cookies["php_user_email"];
+        bool isPhpLoggedIn = !string.IsNullOrEmpty(phpUserName);
+
         if (User.Identity != null && User.Identity.IsAuthenticated)
         {
             var userId = UserManager.GetUserId(User);
@@ -161,10 +168,20 @@
                             <button type="submit" class="logout-btn">Logout</button>
                         </form>
                     }
+                    else if (isPhpLoggedIn)
+                    {
+                        <a class="cart-btn" asp-area="Customer" asp-controller="Cart" asp-action="Index">
+                            <span>🛒</span>
+                            <span>Cart</span>
+                        </a>
+
+                        <span class="user-greeting">Hello, @phpUserName</span>
+                        <a class="logout-btn" href="http://localhost/php_login/logout.php">Logout</a>
+                    }
                     else
                     {
-                        <a class="login-btn" asp-area="Identity" asp-controller="Account" asp-action="Login">Login</a>
-                        <a class="register-btn" asp-area="Identity" asp-controller="Account" asp-action="Register">Register</a>
+                        <a class="login-btn" href="http://localhost/php_login/login.php">Login</a>
+                        <a class="register-btn" href="http://localhost/php_login/register.php">Register</a>
                     }
                 </div>
 

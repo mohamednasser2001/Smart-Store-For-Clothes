@@ -20,7 +20,7 @@ namespace DataAccess.Repositories
         public IRepository<CartItem> CartItems { get; private set; }
         public IRepository<Order> Orders { get; private set; }
         public IRepository<OrderItem> OrderItems { get; private set; }
-
+        public IRepository<ProductReview> ProductReviews { get; private set; }
         public UnitOfWork(ApplicationDbContext context)
         {
             _context = context;
@@ -33,6 +33,7 @@ namespace DataAccess.Repositories
             CartItems = new Repository<CartItem>(_context);
             Orders = new Repository<Order>(_context);
             OrderItems = new Repository<OrderItem>(_context);
+            ProductReviews = new Repository<ProductReview>(_context);
         }
 
         public void Save()

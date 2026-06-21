@@ -20,7 +20,7 @@ namespace Smart_Store_For_Clothes.Areas.Customer.Controllers
             _unitOfWork = unitOfWork;
             _userManager = userManager;
         }
-
+        [HttpGet]
         public IActionResult Index()
         {
             var userId = _userManager.GetUserId(User);

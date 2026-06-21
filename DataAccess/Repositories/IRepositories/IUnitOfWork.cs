@@ -17,6 +17,7 @@ namespace DataAccess.Repositories.IRepositories
         IRepository<CartItem> CartItems { get; }
         IRepository<Order> Orders { get; }
         IRepository<OrderItem> OrderItems { get; }
+        IRepository<ProductReview> ProductReviews { get; }
         void Save();
     }
 }
