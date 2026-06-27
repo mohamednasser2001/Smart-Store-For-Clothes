@@ -1,10 +1,11 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>Smart_Store_For_Clothes</RootNamespace>
+    <UserSecretsId>3b6193ef-a9f8-45b1-9e6f-3c1c34f87514</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>

@@ -243,3 +243,223 @@
     categorySelect.addEventListener('change', filterProducts);
     genderSelect.addEventListener('change', filterProducts);
 </script>
+<!-- ================= AI CHAT WIDGET ================= -->
+
+<style>
+    .ai-chat-button {
+        position: fixed;
+        bottom: 25px;
+        right: 25px;
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #6c5ce7, #00cec9);
+        color: white;
+        border: none;
+        font-size: 26px;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+        cursor: pointer;
+        z-index: 9999;
+    }
+
+    .ai-chat-box {
+        position: fixed;
+        bottom: 95px;
+        right: 25px;
+        width: 340px;
+        height: 430px;
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+        display: none;
+        flex-direction: column;
+        overflow: hidden;
+        z-index: 9999;
+    }
+
+    .ai-chat-header {
+        background: #111827;
+        color: white;
+        padding: 14px;
+        font-weight: bold;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .ai-chat-messages {
+        flex: 1;
+        padding: 12px;
+        overflow-y: auto;
+        background: #f7f8fc;
+    }
+
+    .ai-message {
+        padding: 9px 12px;
+        border-radius: 12px;
+        margin-bottom: 10px;
+        max-width: 85%;
+        font-size: 14px;
+    }
+
+    .ai-user-message {
+        background: #6c5ce7;
+        color: white;
+        margin-left: auto;
+    }
+
+    .ai-bot-message {
+        background: white;
+        color: #111827;
+        border: 1px solid #eee;
+        margin-right: auto;
+    }
+
+    .ai-chat-input {
+        display: flex;
+        border-top: 1px solid #eee;
+    }
+
+        .ai-chat-input input {
+            flex: 1;
+            border: none;
+            padding: 12px;
+            outline: none;
+            font-size: 14px;
+        }
+
+        .ai-chat-input button {
+            border: none;
+            background: #6c5ce7;
+            color: white;
+            padding: 0 16px;
+            cursor: pointer;
+        }
+</style>
+
+<button class="ai-chat-button" id="aiChatToggle">
+    🤖
+</button>
+
+<div class="ai-chat-box" id="aiChatBox">
+
+    <div class="ai-chat-header">
+        <span>AI Assistant</span>
+        <button id="aiChatClose" style="background:none; border:none; color:white; font-size:18px; cursor:pointer;">
+            ×
+        </button>
+    </div>
+
+    <div class="ai-chat-messages" id="aiChatMessages">
+        <div class="ai-message ai-bot-message">
+            Hi 👋 How can I help you today?
+        </div>
+    </div>
+
+    <div class="ai-chat-input">
+        <input type="text"
+               id="aiMessageInput"
+               placeholder="Ask about products, sizes, colors..." />
+
+        <button type="button" id="aiSendBtn">
+            Send
+        </button>
+    </div>
+
+</div>
+
+<script>
+    const aiChatToggle = document.getElementById("aiChatToggle");
+    const aiChatBox = document.getElementById("aiChatBox");
+    const aiChatClose = document.getElementById("aiChatClose");
+    const aiSendBtn = document.getElementById("aiSendBtn");
+    const aiMessageInput = document.getElementById("aiMessageInput");
+    const aiChatMessages = document.getElementById("aiChatMessages");
+
+    aiChatToggle.addEventListener("click", function () {
+        aiChatBox.style.display = "flex";
+    });
+
+    aiChatClose.addEventListener("click", function () {
+        aiChatBox.style.display = "none";
+    });
+
+    aiSendBtn.addEventListener("click", sendAiMessage);
+
+    aiMessageInput.addEventListener("keydown", function (e) {
+        if (e.key === "Enter") {
+            sendAiMessage();
+        }
+    });
+
+    async function sendAiMessage() {
+        const message = aiMessageInput.value.trim();
+
+        if (!message) {
+            return;
+        }
+
+        appendMessage(message, "user");
+        aiMessageInput.value = "";
+
+        appendMessage("Typing...", "bot", true);
+
+        try {
+            const response = await fetch("/Customer/AIChat/SendMessage", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    message: message
+                })
+            });
+
+            const data = await response.json();
+
+            removeTypingMessage();
+
+            if (data.success) {
+                appendMessage(data.reply, "bot");
+            } else {
+                appendMessage(data.reply || "Something went wrong.", "bot");
+            }
+
+        } catch (error) {
+            removeTypingMessage();
+            appendMessage("AI service is not available right now.", "bot");
+        }
+    }
+
+    function appendMessage(text, sender, isTyping = false) {
+        const div = document.createElement("div");
+
+        div.classList.add("ai-message");
+
+        if (sender === "user") {
+            div.classList.add("ai-user-message");
+        } else {
+            div.classList.add("ai-bot-message");
+        }
+
+        if (isTyping) {
+            div.id = "aiTypingMessage";
+        }
+
+        div.innerText = text;
+
+        aiChatMessages.appendChild(div);
+        aiChatMessages.scrollTop = aiChatMessages.scrollHeight;
+    }
+
+    function removeTypingMessage() {
+        const typing = document.getElementById("aiTypingMessage");
+
+        if (typing) {
+            typing.remove();
+        }
+    }
+</script>
+
+<!-- ================= END AI CHAT WIDGET ================= -->
+
