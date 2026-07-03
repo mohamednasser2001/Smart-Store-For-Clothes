@@ -24,7 +24,8 @@ namespace Smart_Store_For_Clothes.Areas.Admin.Controllers
         {
             int pageSize = 10;
 
-            var productsQuery = _unitOfWork.Products.GetAll();
+            var productsQuery = _unitOfWork.Products.GetAll()
+                .Where(p => !p.IsDeleted);
 
             int totalCount = productsQuery.Count();
 
@@ -39,6 +40,7 @@ namespace Smart_Store_For_Clothes.Areas.Admin.Controllers
                     Description = p.Description,
                     Price = p.Price,
                     ImageUrl = p.ImageUrl,
+                    Gender = p.Gender,
                     CategoryName = _unitOfWork.Categories.GetById(p.CategoryId)?.Name ?? "No Category"
                 })
                 .ToList();
@@ -58,13 +60,7 @@ namespace Smart_Store_For_Clothes.Areas.Admin.Controllers
         {
             CreateProductVM vm = new CreateProductVM
             {
-                CategoriesList = _unitOfWork.Categories.GetAll()
-                    .Select(c => new SelectListItem
-                    {
-                        Text = c.Name,
-                        Value = c.Id.ToString()
-                    })
-                    .ToList()
+                CategoriesList = GetCategoriesList()
             };
 
             return View(vm);
@@ -80,18 +76,7 @@ namespace Smart_Store_For_Clothes.Areas.Admin.Controllers
 
                 if (model.ImageFile != null)
                 {
-                    string fileName = Guid.NewGuid().ToString() + Path.GetExtension(model.ImageFile.FileName);
-
-                    string folderPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images");
-
-                    string filePath = Path.Combine(folderPath, fileName);
-
-                    using (var stream = new FileStream(filePath, FileMode.Create))
-                    {
-                        model.ImageFile.CopyTo(stream);
-                    }
-
-                    imagePath = "/images/" + fileName;
+                    imagePath = UploadProductImage(model.ImageFile);
                 }
 
                 Product product = new Product
@@ -101,12 +86,14 @@ namespace Smart_Store_For_Clothes.Areas.Admin.Controllers
                     Price = model.Price,
                     CategoryId = model.CategoryId,
                     Gender = model.Gender,
-                    ImageUrl = imagePath
+                    ImageUrl = imagePath,
+                    IsDeleted = false
                 };
 
                 _unitOfWork.Products.Add(product);
                 _unitOfWork.Save();
 
+                TempData["success"] = "Product created successfully";
                 return RedirectToAction(nameof(Index));
             }
 
@@ -114,10 +101,15 @@ namespace Smart_Store_For_Clothes.Areas.Admin.Controllers
             return View(model);
         }
 
+        [HttpGet]
         public IActionResult Edit(int id)
         {
             var product = _unitOfWork.Products.GetById(id);
-            if (product == null) return NotFound();
+
+            if (product == null || product.IsDeleted)
+            {
+                return NotFound();
+            }
 
             CreateProductVM vm = new CreateProductVM
             {
@@ -134,7 +126,6 @@ namespace Smart_Store_For_Clothes.Areas.Admin.Controllers
             return View(vm);
         }
 
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Edit(CreateProductVM model)
@@ -142,7 +133,11 @@ namespace Smart_Store_For_Clothes.Areas.Admin.Controllers
             if (ModelState.IsValid)
             {
                 var product = _unitOfWork.Products.GetById(model.Id);
-                if (product == null) return NotFound();
+
+                if (product == null || product.IsDeleted)
+                {
+                    return NotFound();
+                }
 
                 product.Name = model.Name;
                 product.Description = model.Description;
@@ -150,36 +145,25 @@ namespace Smart_Store_For_Clothes.Areas.Admin.Controllers
                 product.CategoryId = model.CategoryId;
                 product.Gender = model.Gender;
 
-             
                 if (model.ImageFile != null)
                 {
-                    string fileName = Guid.NewGuid().ToString() + Path.GetExtension(model.ImageFile.FileName);
-
-                    string folderPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images");
-                    string filePath = Path.Combine(folderPath, fileName);
-
-                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    if (!string.IsNullOrEmpty(product.ImageUrl))
                     {
-                        model.ImageFile.CopyTo(stream);
+                        DeleteFile(product.ImageUrl);
                     }
 
-                    product.ImageUrl = "/images/" + fileName;
+                    product.ImageUrl = UploadProductImage(model.ImageFile);
                 }
 
                 _unitOfWork.Products.Update(product);
                 _unitOfWork.Save();
 
+                TempData["success"] = "Product updated successfully";
                 return RedirectToAction(nameof(Index));
             }
 
             model.CategoriesList = GetCategoriesList();
             return View(model);
-        }
-
-
-        private IEnumerable<SelectListItem> GetCategoriesList()
-        {
-            return _unitOfWork.Categories.GetAll().Select(c => new SelectListItem { Text = c.Name, Value = c.Id.ToString() });
         }
 
         [HttpPost]
@@ -193,17 +177,18 @@ namespace Smart_Store_For_Clothes.Areas.Admin.Controllers
                 return NotFound();
             }
 
-            if (!string.IsNullOrEmpty(productFromDb.ImageUrl))
-            {
-                string oldImagePath = Path.Combine(_webHostEnvironment.WebRootPath, productFromDb.ImageUrl.TrimStart('/'));
+            var cartItems = _unitOfWork.CartItems.GetAll()
+                .Where(ci => ci.ProductId == id)
+                .ToList();
 
-                if (System.IO.File.Exists(oldImagePath))
-                {
-                    System.IO.File.Delete(oldImagePath);
-                }
+            foreach (var cartItem in cartItems)
+            {
+                _unitOfWork.CartItems.Delete(cartItem);
             }
 
-            _unitOfWork.Products.Delete(productFromDb);
+            productFromDb.IsDeleted = true;
+
+            _unitOfWork.Products.Update(productFromDb);
             _unitOfWork.Save();
 
             TempData["success"] = "Product deleted successfully";
@@ -215,12 +200,13 @@ namespace Smart_Store_For_Clothes.Areas.Admin.Controllers
         {
             var product = _unitOfWork.Products.GetById(id);
 
-            if (product == null)
+            if (product == null || product.IsDeleted)
             {
                 return NotFound();
             }
 
             var allSizes = _unitOfWork.Sizes.GetAll().ToList();
+
             var productSizes = _unitOfWork.ProductSizes.GetAll()
                 .Where(ps => ps.ProductId == id)
                 .ToList();
@@ -248,7 +234,7 @@ namespace Smart_Store_For_Clothes.Areas.Admin.Controllers
         {
             var product = _unitOfWork.Products.GetById(model.ProductId);
 
-            if (product == null)
+            if (product == null || product.IsDeleted)
             {
                 return NotFound();
             }
@@ -283,6 +269,45 @@ namespace Smart_Store_For_Clothes.Areas.Admin.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        private IEnumerable<SelectListItem> GetCategoriesList()
+        {
+            return _unitOfWork.Categories.GetAll()
+                .Select(c => new SelectListItem
+                {
+                    Text = c.Name,
+                    Value = c.Id.ToString()
+                });
+        }
 
+        private string UploadProductImage(IFormFile imageFile)
+        {
+            string fileName = Guid.NewGuid().ToString() + Path.GetExtension(imageFile.FileName);
+
+            string folderPath = Path.Combine(_webHostEnvironment.WebRootPath, "images");
+
+            if (!Directory.Exists(folderPath))
+            {
+                Directory.CreateDirectory(folderPath);
+            }
+
+            string filePath = Path.Combine(folderPath, fileName);
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                imageFile.CopyTo(stream);
+            }
+
+            return "/images/" + fileName;
+        }
+
+        private void DeleteFile(string fileUrl)
+        {
+            string filePath = Path.Combine(_webHostEnvironment.WebRootPath, fileUrl.TrimStart('/'));
+
+            if (System.IO.File.Exists(filePath))
+            {
+                System.IO.File.Delete(filePath);
+            }
+        }
     }
 }

@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Models.VM
 {
@@ -17,8 +15,11 @@ namespace Models.VM
         public string? ImageUrl { get; set; }
 
         public string CategoryName { get; set; } = null!;
+
         public string Gender { get; set; } = null!;
+
         public double AverageRating { get; set; }
+
         public int ReviewsCount { get; set; }
     }
 }

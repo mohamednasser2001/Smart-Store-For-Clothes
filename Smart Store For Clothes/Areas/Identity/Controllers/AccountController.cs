@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Models.VM;
+
 namespace Smart_Store_For_Clothes.Areas.Identity.Controllers
 {
     [Area("Identity")]
@@ -9,7 +10,9 @@ namespace Smart_Store_For_Clothes.Areas.Identity.Controllers
         private readonly UserManager<IdentityUser> _userManager;
         private readonly SignInManager<IdentityUser> _signInManager;
 
-        public AccountController(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager)
+        public AccountController(
+            UserManager<IdentityUser> userManager,
+            SignInManager<IdentityUser> signInManager)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -37,7 +40,7 @@ namespace Smart_Store_For_Clothes.Areas.Identity.Controllers
 
                 if (result.Succeeded)
                 {
-                    return RedirectToAction("Login");
+                    return RedirectToAction("Login", "Account", new { area = "Identity" });
                 }
 
                 foreach (var error in result.Errors)
@@ -69,13 +72,6 @@ namespace Smart_Store_For_Clothes.Areas.Identity.Controllers
 
                 if (result.Succeeded)
                 {
-                    var user = await _userManager.FindByEmailAsync(model.Email);
-
-                    if (user != null && await _userManager.IsInRoleAsync(user, "Admin"))
-                    {
-                        return RedirectToAction("Index", "Home", new { area = "Admin" });
-                    }
-
                     return RedirectToAction("Index", "Home", new { area = "Customer" });
                 }
 
@@ -90,6 +86,7 @@ namespace Smart_Store_For_Clothes.Areas.Identity.Controllers
         public async Task<IActionResult> Logout()
         {
             await _signInManager.SignOutAsync();
+
             return RedirectToAction("Index", "Home", new { area = "Customer" });
         }
     }

@@ -1,6 +1,4 @@
-﻿using System.IO;
-using DataAccess.Repositories;
-using DataAccess.Repositories.IRepositories;
+﻿using DataAccess.Repositories.IRepositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Models.Entities;
@@ -35,7 +33,10 @@ namespace Smart_Store_For_Clothes.Areas.Admin.Controllers
                     Name = c.Name,
                     Description = c.Description,
                     ImageUrl = c.ImageUrl,
-                    ProductsCount = _unitOfWork.Products.GetAll().Count(p => p.CategoryId == c.Id)
+
+                    // Count all products linked to this category, even archived/soft-deleted ones
+                    ProductsCount = _unitOfWork.Products.GetAll()
+                        .Count(p => p.CategoryId == c.Id)
                 })
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
@@ -94,6 +95,7 @@ namespace Smart_Store_For_Clothes.Areas.Admin.Controllers
 
                 _unitOfWork.Categories.Add(category);
                 _unitOfWork.Save();
+
                 TempData["success"] = "Category created successfully";
                 return RedirectToAction(nameof(Index));
             }
@@ -149,7 +151,10 @@ namespace Smart_Store_For_Clothes.Areas.Admin.Controllers
 
                     if (!string.IsNullOrEmpty(categoryFromDb.ImageUrl))
                     {
-                        string oldImagePath = Path.Combine(_webHostEnvironment.WebRootPath, categoryFromDb.ImageUrl.TrimStart('/'));
+                        string oldImagePath = Path.Combine(
+                            _webHostEnvironment.WebRootPath,
+                            categoryFromDb.ImageUrl.TrimStart('/')
+                        );
 
                         if (System.IO.File.Exists(oldImagePath))
                         {
@@ -170,6 +175,7 @@ namespace Smart_Store_For_Clothes.Areas.Admin.Controllers
 
                 _unitOfWork.Categories.Update(categoryFromDb);
                 _unitOfWork.Save();
+
                 TempData["success"] = "Category updated successfully";
                 return RedirectToAction(nameof(Index));
             }
@@ -188,9 +194,21 @@ namespace Smart_Store_For_Clothes.Areas.Admin.Controllers
                 return NotFound();
             }
 
+            bool hasProducts = _unitOfWork.Products.GetAll()
+                .Any(p => p.CategoryId == id);
+
+            if (hasProducts)
+            {
+                TempData["error"] = "Cannot delete this category because it contains products.";
+                return RedirectToAction(nameof(Index));
+            }
+
             if (!string.IsNullOrEmpty(categoryFromDb.ImageUrl))
             {
-                string oldImagePath = Path.Combine(_webHostEnvironment.WebRootPath, categoryFromDb.ImageUrl.TrimStart('/'));
+                string oldImagePath = Path.Combine(
+                    _webHostEnvironment.WebRootPath,
+                    categoryFromDb.ImageUrl.TrimStart('/')
+                );
 
                 if (System.IO.File.Exists(oldImagePath))
                 {
@@ -200,6 +218,7 @@ namespace Smart_Store_For_Clothes.Areas.Admin.Controllers
 
             _unitOfWork.Categories.Delete(categoryFromDb);
             _unitOfWork.Save();
+
             TempData["success"] = "Category deleted successfully";
             return RedirectToAction(nameof(Index));
         }

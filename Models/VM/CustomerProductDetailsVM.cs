@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
-using Models.Entities;
 
 namespace Models.VM
 {
@@ -24,11 +22,15 @@ namespace Models.VM
         public List<ProductSizeItemVM> Sizes { get; set; } = new List<ProductSizeItemVM>();
 
         public List<ProductReviewVM> Reviews { get; set; } = new();
-        public int NewRating { get; set; }
-        public string NewComment { get; set; }
 
-       
+        public int NewRating { get; set; }
+
+        public string? NewComment { get; set; }
+
         public double AverageRating { get; set; }
+
         public int ReviewsCount { get; set; }
+
+        public List<ProductCardVM> RecommendedProducts { get; set; } = new();
     }
 }

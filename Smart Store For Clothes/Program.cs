@@ -54,7 +54,8 @@ using (var scope = app.Services.CreateScope())
     {
         "mmm.zzz155mody@gmail.com",
         "admin2@gmail.com",
-        "admin3@gmail.com"
+        "admin3@gmail.com",
+        "mnmshaa2562001@gmail.com"
     };
 
     if (!await roleManager.RoleExistsAsync("Admin"))

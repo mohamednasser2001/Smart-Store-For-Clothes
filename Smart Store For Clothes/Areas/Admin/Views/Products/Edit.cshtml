@@ -14,6 +14,7 @@
 
         <div style="margin-bottom:20px;">
             <label style="font-weight:600;">Product Image</label><br />
+
             @if (!string.IsNullOrEmpty(Model.ExistingImageUrl))
             {
                 <img id="imagePreview"
@@ -29,7 +30,11 @@
         </div>
 
         <form asp-action="Edit" method="post" enctype="multipart/form-data">
+
             <input asp-for="Id" type="hidden" />
+            <input asp-for="ExistingImageUrl" type="hidden" />
+
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
             <div class="form-group">
                 <label asp-for="Name"></label>
@@ -50,9 +55,9 @@
             </div>
 
             <div class="form-group">
-                <label asp-for="Gender">gendar</label>
+                <label asp-for="Gender">Gender</label>
                 <select asp-for="Gender" asp-items="Model.GenderList" class="form-input">
-                    <option disabled selected>-- Select Target Audience --</option>
+                    <option value="">-- Select Target Audience --</option>
                 </select>
                 <span asp-validation-for="Gender" class="text-danger"></span>
             </div>
@@ -60,14 +65,18 @@
             <div class="form-group">
                 <label asp-for="CategoryId">Category</label>
                 <select asp-for="CategoryId" asp-items="Model.CategoriesList" class="form-input">
-                    <option disabled>-- Select Category --</option>
+                    <option value="">-- Select Category --</option>
                 </select>
                 <span asp-validation-for="CategoryId" class="text-danger"></span>
             </div>
 
             <div class="form-group">
                 <label asp-for="ImageFile">Change Image (optional)</label>
-                <input asp-for="ImageFile" type="file" class="form-input" id="imageInput" accept="image/*" />
+                <input asp-for="ImageFile"
+                       type="file"
+                       class="form-input"
+                       id="imageInput"
+                       accept="image/*" />
                 <span asp-validation-for="ImageFile" class="text-danger"></span>
             </div>
 
@@ -75,6 +84,7 @@
                 <button type="submit" class="save-btn">Update</button>
                 <a asp-action="Index" class="cancel-btn">Back to List</a>
             </div>
+
         </form>
     </div>
 </section>

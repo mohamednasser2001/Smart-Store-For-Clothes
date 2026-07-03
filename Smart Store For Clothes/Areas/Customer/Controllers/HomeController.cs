@@ -14,9 +14,9 @@ namespace Smart_Store_For_Clothes.Areas.Customer.Controllers
         private readonly IUnitOfWork _unitOfWork;
         private readonly UserManager<IdentityUser> _userManager;
 
-
-        public HomeController(IUnitOfWork unitOfWork,
-                        UserManager<IdentityUser> userManager)
+        public HomeController(
+            IUnitOfWork unitOfWork,
+            UserManager<IdentityUser> userManager)
         {
             _unitOfWork = unitOfWork;
             _userManager = userManager;
@@ -24,7 +24,10 @@ namespace Smart_Store_For_Clothes.Areas.Customer.Controllers
 
         public IActionResult Index()
         {
-            var products = _unitOfWork.Products.GetAll().ToList();
+            var products = _unitOfWork.Products.GetAll()
+                .Where(p => !p.IsDeleted)
+                .ToList();
+
             var reviews = _unitOfWork.ProductReviews.GetAll().ToList();
 
             var productsVM = products.Select(p =>
@@ -41,7 +44,6 @@ namespace Smart_Store_For_Clothes.Areas.Customer.Controllers
                     Gender = p.Gender,
                     CategoryName = _unitOfWork.Categories.GetById(p.CategoryId)?.Name ?? "No Category",
 
-                    // ⭐ Reviews Aggregation
                     AverageRating = productReviews.Any()
                         ? productReviews.Average(r => r.Rating)
                         : 0,
@@ -71,7 +73,6 @@ namespace Smart_Store_For_Clothes.Areas.Customer.Controllers
         {
             var reviews = _unitOfWork.ProductReviews.GetAll().ToList();
             string? recommendedSize = null;
-
             int? recommendedSizeId = null;
 
             if (height.HasValue && weight.HasValue && age.HasValue)
@@ -89,7 +90,9 @@ namespace Smart_Store_For_Clothes.Areas.Customer.Controllers
                 }
             }
 
-            var productsQuery = _unitOfWork.Products.GetAll().ToList();
+            var productsQuery = _unitOfWork.Products.GetAll()
+                .Where(p => !p.IsDeleted)
+                .ToList();
 
             if (categoryId.HasValue)
             {
@@ -97,6 +100,7 @@ namespace Smart_Store_For_Clothes.Areas.Customer.Controllers
                     .Where(p => p.CategoryId == categoryId.Value)
                     .ToList();
             }
+
             if (!string.IsNullOrEmpty(gender))
             {
                 productsQuery = productsQuery
@@ -118,29 +122,28 @@ namespace Smart_Store_For_Clothes.Areas.Customer.Controllers
             }
 
             var products = productsQuery
-            .Select(p =>
-            {
-                var productReviews = reviews.Where(r => r.ProductId == p.Id).ToList();
-
-                return new ProductCardVM
+                .Select(p =>
                 {
-                    Id = p.Id,
-                    Name = p.Name,
-                    Description = p.Description,
-                    Price = p.Price,
-                    ImageUrl = p.ImageUrl,
-                    Gender = p.Gender,
-                    CategoryName = _unitOfWork.Categories.GetById(p.CategoryId)?.Name ?? "No Category",
+                    var productReviews = reviews.Where(r => r.ProductId == p.Id).ToList();
 
-                    // ⭐ FIXED
-                    AverageRating = productReviews.Any()
-                        ? productReviews.Average(r => r.Rating)
-                        : 0,
+                    return new ProductCardVM
+                    {
+                        Id = p.Id,
+                        Name = p.Name,
+                        Description = p.Description,
+                        Price = p.Price,
+                        ImageUrl = p.ImageUrl,
+                        Gender = p.Gender,
+                        CategoryName = _unitOfWork.Categories.GetById(p.CategoryId)?.Name ?? "No Category",
 
-                    ReviewsCount = productReviews.Count
-                };
-            })
-            .ToList();
+                        AverageRating = productReviews.Any()
+                            ? productReviews.Average(r => r.Rating)
+                            : 0,
+
+                        ReviewsCount = productReviews.Count
+                    };
+                })
+                .ToList();
 
             return Json(new
             {
@@ -154,10 +157,12 @@ namespace Smart_Store_For_Clothes.Areas.Customer.Controllers
         {
             var product = _unitOfWork.Products.GetById(id);
 
-            if (product == null)
+            if (product == null || product.IsDeleted)
             {
                 return NotFound();
             }
+
+            var allReviews = _unitOfWork.ProductReviews.GetAll().ToList();
 
             var productSizes = _unitOfWork.ProductSizes.GetAll()
                 .Where(ps => ps.ProductId == id && ps.QuantityInStock > 0)
@@ -179,11 +184,7 @@ namespace Smart_Store_For_Clothes.Areas.Customer.Controllers
                 }
             }
 
-            // =========================
-            // Reviews Section
-            // =========================
-
-            var reviewEntities = _unitOfWork.ProductReviews.GetAll()
+            var reviewEntities = allReviews
                 .Where(r => r.ProductId == id)
                 .OrderByDescending(r => r.CreatedAt)
                 .ToList();
@@ -212,6 +213,37 @@ namespace Smart_Store_For_Clothes.Areas.Customer.Controllers
                 ? reviews.Average(r => r.Rating)
                 : 0;
 
+            var recommendedProducts = _unitOfWork.Products.GetAll()
+                .Where(p =>
+                    !p.IsDeleted &&
+                    p.Id != product.Id &&
+                    p.Gender == product.Gender &&
+                    p.CategoryId != product.CategoryId)
+                .Take(4)
+                .ToList()
+                .Select(p =>
+                {
+                    var productReviews = allReviews.Where(r => r.ProductId == p.Id).ToList();
+
+                    return new ProductCardVM
+                    {
+                        Id = p.Id,
+                        Name = p.Name,
+                        Description = p.Description,
+                        Price = p.Price,
+                        ImageUrl = p.ImageUrl,
+                        Gender = p.Gender,
+                        CategoryName = _unitOfWork.Categories.GetById(p.CategoryId)?.Name ?? "No Category",
+
+                        AverageRating = productReviews.Any()
+                            ? productReviews.Average(r => r.Rating)
+                            : 0,
+
+                        ReviewsCount = productReviews.Count
+                    };
+                })
+                .ToList();
+
             CustomerProductDetailsVM vm = new CustomerProductDetailsVM
             {
                 Id = product.Id,
@@ -232,7 +264,8 @@ namespace Smart_Store_For_Clothes.Areas.Customer.Controllers
 
                 Reviews = reviews,
                 AverageRating = averageRating,
-                ReviewsCount = reviews.Count
+                ReviewsCount = reviews.Count,
+                RecommendedProducts = recommendedProducts
             };
 
             return View(vm);
@@ -243,6 +276,13 @@ namespace Smart_Store_For_Clothes.Areas.Customer.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult AddReview(int productId, string comment, int rating)
         {
+            var product = _unitOfWork.Products.GetById(productId);
+
+            if (product == null || product.IsDeleted)
+            {
+                return NotFound();
+            }
+
             var userId = _userManager.GetUserId(User);
 
             if (string.IsNullOrEmpty(userId))
@@ -282,6 +322,4 @@ namespace Smart_Store_For_Clothes.Areas.Customer.Controllers
             return RedirectToAction("Details", new { id = productId });
         }
     }
-
-
 }

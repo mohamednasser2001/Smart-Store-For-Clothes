@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Text;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
@@ -22,7 +20,6 @@ namespace Models.VM
         [Required(ErrorMessage = "Please select a category")]
         public int CategoryId { get; set; }
 
-        // الخاصية اللي هتشيل القيمة المختارة من الـ Dropdown
         [Required(ErrorMessage = "Please select a gender")]
         public string Gender { get; set; } = null!;
 
@@ -32,13 +29,12 @@ namespace Models.VM
 
         public IEnumerable<SelectListItem> CategoriesList { get; set; } = new List<SelectListItem>();
 
-        
         public IEnumerable<SelectListItem> GenderList { get; set; } = new List<SelectListItem>
         {
-        new SelectListItem { Value = "Men", Text = "Men" },
-        new SelectListItem { Value = "Women", Text = "Women" },
-        new SelectListItem { Value = "Boys", Text = "Boys" },
-        new SelectListItem { Value = "Girls", Text = "Girls" }
+            new SelectListItem { Value = "Men", Text = "Men" },
+            new SelectListItem { Value = "Women", Text = "Women" },
+            new SelectListItem { Value = "Boys", Text = "Boys" },
+            new SelectListItem { Value = "Girls", Text = "Girls" }
         };
     }
 }

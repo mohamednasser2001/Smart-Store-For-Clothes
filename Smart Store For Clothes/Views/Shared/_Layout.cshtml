@@ -1,8 +1,7 @@
 ﻿@using Microsoft.AspNetCore.Identity
-@using Models.Entities
-@inject SignInManager<IdentityUser> SignInManager
 @inject UserManager<IdentityUser> UserManager
 @inject DataAccess.Repositories.IRepositories.IUnitOfWork UnitOfWork
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -14,7 +13,6 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 
     <style>
-            /* 🔥 Navbar Design */
             .custom-navbar {
                 background: #ffffff;
                 box-shadow: 0 2px 10px rgba(0,0,0,0.05);
@@ -65,6 +63,7 @@
             }
 
             .cart-btn {
+                position: relative;
                 display: flex;
                 align-items: center;
                 gap: 5px;
@@ -88,9 +87,11 @@
                 border-radius: 8px;
                 text-decoration: none;
                 display: inline-block;
+                cursor: pointer;
             }
 
-            .login-btn, .register-btn {
+            .login-btn,
+            .register-btn {
                 text-decoration: none;
                 padding: 6px 12px;
                 border-radius: 8px;
@@ -116,25 +117,24 @@
     @{
         int cartCount = 0;
 
-        string phpUserName = Context.Request.Cookies["php_user_name"];
-        string phpUserEmail = Context.Request.Cookies["php_user_email"];
-        bool isPhpLoggedIn = !string.IsNullOrEmpty(phpUserName);
-
         if (User.Identity != null && User.Identity.IsAuthenticated)
         {
             var userId = UserManager.GetUserId(User);
             var cart = UnitOfWork.Carts.GetAll().FirstOrDefault(u => u.UserId == userId);
+
             if (cart != null)
             {
-                cartCount = UnitOfWork.CartItems.GetAll().Where(ci => ci.CartId == cart.Id).Sum(ci => ci.Quantity);
+                cartCount = UnitOfWork.CartItems.GetAll()
+                    .Where(ci => ci.CartId == cart.Id)
+                    .Sum(ci => ci.Quantity);
             }
         }
     }
+
     <header>
         <nav class="custom-navbar">
             <div class="custom-navbar-container">
 
-                <!-- 🔥 Logo + Brand -->
                 <div class="custom-navbar-left">
                     <a class="custom-brand" asp-area="Customer" asp-controller="Home" asp-action="Index">
                         <img src="/images/logo.png" alt="logo" />
@@ -146,13 +146,13 @@
                     </div>
                 </div>
 
-                <!-- 🔥 Auth Section -->
                 <div class="custom-auth">
                     @if (User.Identity != null && User.Identity.IsAuthenticated)
                     {
                         <a class="cart-btn" asp-area="Customer" asp-controller="Cart" asp-action="Index">
                             <span>🛒</span>
                             <span>Cart</span>
+
                             @if (cartCount > 0)
                             {
                                 <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem;">
@@ -163,25 +163,28 @@
 
                         <span class="user-greeting">Hello, @User.Identity.Name</span>
 
-                        <form asp-area="Identity" asp-controller="Account" asp-action="Logout" method="post" class="logout-form">
-                            @Html.AntiForgeryToken()
-                            <button type="submit" class="logout-btn">Logout</button>
-                        </form>
-                    }
-                    else if (isPhpLoggedIn)
-                    {
-                        <a class="cart-btn" asp-area="Customer" asp-controller="Cart" asp-action="Index">
-                            <span>🛒</span>
-                            <span>Cart</span>
-                        </a>
+                        <form asp-area="Identity"
+                              asp-controller="Account"
+                              asp-action="Logout"
+                              method="post"
+                              class="logout-form">
 
-                        <span class="user-greeting">Hello, @phpUserName</span>
-                        <a class="logout-btn" href="http://localhost/php_login/logout.php">Logout</a>
+                            @Html.AntiForgeryToken()
+
+                            <button type="submit" class="logout-btn">
+                                Logout
+                            </button>
+                        </form>
                     }
                     else
                     {
-                        <a class="login-btn" href="http://localhost/php_login/login.php">Login</a>
-                        <a class="register-btn" href="http://localhost/php_login/register.php">Register</a>
+                        <a class="login-btn" asp-area="Identity" asp-controller="Account" asp-action="Login">
+                            Login
+                        </a>
+
+                        <a class="register-btn" asp-area="Identity" asp-controller="Account" asp-action="Register">
+                            Register
+                        </a>
                     }
                 </div>
 

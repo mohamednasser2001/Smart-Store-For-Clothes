@@ -78,7 +78,6 @@
 
                             <div class="customer-product-name">@product.Name</div>
 
-                            <!-- ⭐ Rating Section FIXED -->
                             <div style="margin:6px 0; font-size:13px;">
 
                                 @if (product.ReviewsCount > 0)
@@ -124,126 +123,8 @@
         }
 
     </div>
+
 </section>
-
-<script>
-    const heightInput = document.getElementById('heightInput');
-    const weightInput = document.getElementById('weightInput');
-    const ageInput = document.getElementById('ageInput');
-    const categorySelect = document.getElementById('categorySelect');
-    const genderSelect = document.getElementById('genderSelect');
-
-    const productsContainer = document.getElementById('productsContainer');
-    const recommendedSizeBox = document.getElementById('recommendedSizeBox');
-
-    async function filterProducts() {
-
-        const height = heightInput.value;
-        const weight = weightInput.value;
-        const age = ageInput.value;
-        const categoryId = categorySelect.value;
-        const gender = genderSelect.value;
-
-        const params = new URLSearchParams();
-
-        if (height) params.append('height', height);
-        if (weight) params.append('weight', weight);
-        if (age) params.append('age', age);
-        if (categoryId) params.append('categoryId', categoryId);
-        if (gender) params.append('gender', gender);
-
-        const response = await fetch(`/Customer/Home/FilterProducts?${params.toString()}`);
-        const data = await response.json();
-
-        if (data.recommendedSize) {
-            recommendedSizeBox.style.display = 'block';
-            recommendedSizeBox.textContent = `Recommended Size: ${data.recommendedSize}`;
-        } else {
-            recommendedSizeBox.style.display = 'none';
-        }
-
-        productsContainer.innerHTML = '';
-
-        if (!data.products || data.products.length === 0) {
-            productsContainer.innerHTML = `
-                <div class="empty-products">
-                    <h3>No Products Found</h3>
-                    <p>No products match your current filters.</p>
-                </div>
-            `;
-            return;
-        }
-
-        data.products.forEach(product => {
-
-            let starsHtml = '';
-
-            if (product.reviewsCount > 0) {
-                const rounded = Math.round(product.averageRating);
-
-                for (let i = 1; i <= 5; i++) {
-                    starsHtml += `<span style="color:${i <= rounded ? 'gold' : '#ddd'}; font-size:14px;">★</span>`;
-                }
-            }
-
-            productsContainer.innerHTML += `
-                <a href="/Customer/Home/Details/${product.id}?height=${height || ''}&weight=${weight || ''}&age=${age || ''}"
-                   class="product-card-link">
-
-                    <div class="customer-product-card">
-
-                        <div class="customer-product-image" style="position:relative;">
-                            <span class="gender-badge">${product.gender}</span>
-                            <img src="${product.imageUrl || '/images/category-placeholder.png'}" />
-                        </div>
-
-                        <div class="customer-product-body">
-
-                            <div class="customer-product-category">${product.categoryName}</div>
-
-                            <div class="customer-product-name">${product.name}</div>
-
-                            <div style="margin:6px 0; font-size:13px;">
-
-                                ${product.reviewsCount > 0
-                                    ? `
-                                        <div>${starsHtml}</div>
-                                        <small style="color:gray;">
-                                            ${product.averageRating.toFixed(1)} / 5 (${product.reviewsCount})
-                                        </small>
-                                    `
-                                    : `<small style="color:gray;">No reviews yet</small>`
-                                }
-
-                            </div>
-
-                            <div class="customer-product-price">
-                                $${Number(product.price).toFixed(2)}
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                </a>
-            `;
-        });
-    }
-
-    let typingTimer;
-
-    function debounceFilter() {
-        clearTimeout(typingTimer);
-        typingTimer = setTimeout(filterProducts, 350);
-    }
-
-    heightInput.addEventListener('input', debounceFilter);
-    weightInput.addEventListener('input', debounceFilter);
-    ageInput.addEventListener('input', debounceFilter);
-    categorySelect.addEventListener('change', filterProducts);
-    genderSelect.addEventListener('change', filterProducts);
-</script>
-<!-- ================= AI CHAT WIDGET ================= -->
 
 <style>
     .ai-chat-button {
@@ -336,6 +217,149 @@
             cursor: pointer;
         }
 </style>
+
+<script>
+    const heightInput = document.getElementById('heightInput');
+    const weightInput = document.getElementById('weightInput');
+    const ageInput = document.getElementById('ageInput');
+    const categorySelect = document.getElementById('categorySelect');
+    const genderSelect = document.getElementById('genderSelect');
+
+    const productsContainer = document.getElementById('productsContainer');
+    const recommendedSizeBox = document.getElementById('recommendedSizeBox');
+
+    async function filterProducts() {
+
+        const height = heightInput.value;
+        const weight = weightInput.value;
+        const age = ageInput.value;
+        const categoryId = categorySelect.value;
+        const gender = genderSelect.value;
+
+        const params = new URLSearchParams();
+
+        if (height) params.append('height', height);
+        if (weight) params.append('weight', weight);
+        if (age) params.append('age', age);
+        if (categoryId) params.append('categoryId', categoryId);
+        if (gender) params.append('gender', gender);
+
+        const response = await fetch(`/Customer/Home/FilterProducts?${params.toString()}`);
+        const data = await response.json();
+
+        if (data.recommendedSize) {
+            recommendedSizeBox.style.display = 'block';
+            recommendedSizeBox.textContent = `Recommended Size: ${data.recommendedSize}`;
+        } else {
+            recommendedSizeBox.style.display = 'none';
+        }
+
+        productsContainer.innerHTML = '';
+
+        if (!data.products || data.products.length === 0) {
+            productsContainer.innerHTML = `
+                <div class="empty-products">
+                    <h3>No Products Found</h3>
+                    <p>No products match your current filters.</p>
+                </div>
+            `;
+            return;
+        }
+
+        data.products.forEach(product => {
+
+            let starsHtml = '';
+
+            if (product.reviewsCount > 0) {
+                const rounded = Math.round(product.averageRating);
+
+                for (let i = 1; i <= 5; i++) {
+                    starsHtml += `<span style="color:${i <= rounded ? 'gold' : '#ddd'}; font-size:14px;">★</span>`;
+                }
+            }
+
+            const imageUrl = product.imageUrl || '/images/category-placeholder.png';
+
+            const safeName = escapeHtml(product.name);
+            const safeCategory = escapeHtml(product.categoryName);
+            const safeGender = escapeHtml(product.gender);
+
+            productsContainer.innerHTML += `
+                <a href="/Customer/Home/Details/${product.id}?height=${height || ''}&weight=${weight || ''}&age=${age || ''}"
+                   class="product-card-link">
+
+                    <div class="customer-product-card">
+
+                        <div class="customer-product-image" style="position:relative;">
+                            <span class="gender-badge">${safeGender}</span>
+                            <img src="${escapeAttribute(imageUrl)}" />
+                        </div>
+
+                        <div class="customer-product-body">
+
+                            <div class="customer-product-category">${safeCategory}</div>
+
+                            <div class="customer-product-name">${safeName}</div>
+
+                            <div style="margin:6px 0; font-size:13px;">
+
+                                ${product.reviewsCount > 0
+                                    ? `
+                                        <div>${starsHtml}</div>
+                                        <small style="color:gray;">
+                                            ${product.averageRating.toFixed(1)} / 5 (${product.reviewsCount})
+                                        </small>
+                                    `
+                                    : `<small style="color:gray;">No reviews yet</small>`
+                                }
+
+                            </div>
+
+                            <div class="customer-product-price">
+                                $${Number(product.price).toFixed(2)}
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </a>
+            `;
+        });
+    }
+
+    let typingTimer;
+
+    function debounceFilter() {
+        clearTimeout(typingTimer);
+        typingTimer = setTimeout(filterProducts, 350);
+    }
+
+    heightInput.addEventListener('input', debounceFilter);
+    weightInput.addEventListener('input', debounceFilter);
+    ageInput.addEventListener('input', debounceFilter);
+    categorySelect.addEventListener('change', filterProducts);
+    genderSelect.addEventListener('change', filterProducts);
+
+    function escapeHtml(value) {
+        if (value == null) {
+            return "";
+        }
+
+        return String(value)
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replaceAll('"', "&quot;")
+            .replaceAll("'", "&#039;");
+    }
+
+    function escapeAttribute(value) {
+        return escapeHtml(value);
+    }
+</script>
+
+<!-- ================= AI CHAT WIDGET ================= -->
 
 <button class="ai-chat-button" id="aiChatToggle">
     🤖
@@ -460,6 +484,3 @@
         }
     }
 </script>
-
-<!-- ================= END AI CHAT WIDGET ================= -->
-

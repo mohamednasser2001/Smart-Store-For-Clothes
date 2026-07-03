@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Text;
 
 namespace Models.Entities
 {
@@ -23,12 +21,15 @@ namespace Models.Entities
         [Required]
         public string Gender { get; set; } = null!;
 
+        public bool IsDeleted { get; set; } = false;
+
         // FK
         public int CategoryId { get; set; }
 
         // Navigation
         [ForeignKey("CategoryId")]
         public Category Category { get; set; } = null!;
+
         public ICollection<ProductSize> ProductSizes { get; set; } = new HashSet<ProductSize>();
 
         public ICollection<CartItem> CartItems { get; set; } = new HashSet<CartItem>();
