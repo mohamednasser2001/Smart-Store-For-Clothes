@@ -1,0 +1,520 @@
+﻿@{
+    ViewData["Title"] = "Welcome";
+}
+
+<style>
+    .welcome-page {
+        background: #f7f8fc;
+        min-height: 100vh;
+        padding-bottom: 60px;
+    }
+
+    .hero-section {
+        background: linear-gradient(135deg, #111827 0%, #2d1b69 45%, #6c5ce7 100%);
+        color: white;
+        border-radius: 0 0 40px 40px;
+        padding: 75px 45px;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .hero-content {
+        display: grid;
+        grid-template-columns: 1.1fr 0.9fr;
+        gap: 45px;
+        align-items: center;
+        max-width: 1200px;
+        margin: auto;
+    }
+
+    .hero-badge {
+        display: inline-block;
+        background: rgba(255,255,255,0.14);
+        border: 1px solid rgba(255,255,255,0.25);
+        padding: 8px 16px;
+        border-radius: 999px;
+        font-size: 14px;
+        font-weight: 700;
+        margin-bottom: 20px;
+    }
+
+    .hero-title {
+        font-size: 54px;
+        font-weight: 900;
+        line-height: 1.05;
+        margin-bottom: 20px;
+    }
+
+        .hero-title span {
+            color: #00cec9;
+        }
+
+    .hero-description {
+        font-size: 17px;
+        line-height: 1.8;
+        color: #e5e7eb;
+        max-width: 620px;
+        margin-bottom: 30px;
+    }
+
+    .hero-actions {
+        display: flex;
+        gap: 15px;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .shop-now-btn {
+        display: inline-block;
+        background: white;
+        color: #111827;
+        padding: 14px 28px;
+        border-radius: 16px;
+        font-weight: 900;
+        text-decoration: none;
+        box-shadow: 0 12px 25px rgba(0,0,0,0.18);
+        transition: 0.2s;
+    }
+
+        .shop-now-btn:hover {
+            transform: translateY(-3px);
+            color: #111827;
+        }
+
+    .secondary-text {
+        color: #d1d5db;
+        font-size: 14px;
+    }
+
+    .hero-gallery {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        max-width: 430px;
+        justify-self: end;
+    }
+
+    .fashion-card {
+        background: rgba(255,255,255,0.14);
+        border: 1px solid rgba(255,255,255,0.18);
+        border-radius: 24px;
+        padding: 12px;
+        backdrop-filter: blur(10px);
+    }
+
+        .fashion-card img {
+            width: 100%;
+            height: 170px;
+            object-fit: cover;
+            object-position: center;
+            border-radius: 18px;
+            background: #fff;
+            display: block;
+        }
+
+        .fashion-card:nth-child(2) {
+            margin-top: 45px;
+        }
+
+    .fashion-card-title {
+        margin-top: 12px;
+        font-weight: 800;
+        font-size: 15px;
+    }
+
+    .section-container {
+        max-width: 1200px;
+        margin: 55px auto 0;
+        padding: 0 30px;
+    }
+
+    .section-title {
+        text-align: center;
+        margin-bottom: 35px;
+    }
+
+        .section-title h2 {
+            font-size: 38px;
+            font-weight: 900;
+            color: #111827;
+            margin-bottom: 10px;
+        }
+
+        .section-title p {
+            color: #6b7280;
+            font-size: 16px;
+            max-width: 680px;
+            margin: auto;
+            line-height: 1.7;
+        }
+
+    .features-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 22px;
+    }
+
+    .feature-card {
+        background: white;
+        border-radius: 24px;
+        padding: 25px;
+        box-shadow: 0 12px 30px rgba(0,0,0,0.06);
+        border: 1px solid #eef0f5;
+        transition: 0.2s;
+        height: 100%;
+    }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+
+    .feature-icon {
+        width: 52px;
+        height: 52px;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #eef2ff;
+        font-size: 25px;
+        margin-bottom: 16px;
+    }
+
+    .feature-card h4 {
+        font-size: 18px;
+        font-weight: 900;
+        margin-bottom: 10px;
+        color: #111827;
+    }
+
+    .feature-card p {
+        color: #6b7280;
+        line-height: 1.7;
+        margin: 0;
+        font-size: 14px;
+    }
+
+    .why-section {
+        background: white;
+        border-radius: 32px;
+        padding: 40px;
+        box-shadow: 0 16px 35px rgba(0,0,0,0.06);
+        display: grid;
+        grid-template-columns: 0.9fr 1.1fr;
+        gap: 35px;
+        align-items: center;
+    }
+
+    .why-image-box {
+        border-radius: 28px;
+        overflow: hidden;
+        background: #f3f4f6;
+        height: 330px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 14px;
+    }
+
+        .why-image-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            object-position: center;
+            border-radius: 22px;
+            display: block;
+        }
+
+    .why-list {
+        display: grid;
+        gap: 16px;
+    }
+
+    .why-item {
+        display: flex;
+        gap: 14px;
+        align-items: flex-start;
+        background: #f9fafb;
+        padding: 16px;
+        border-radius: 18px;
+        border: 1px solid #eef0f5;
+    }
+
+    .why-number {
+        min-width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        background: #111827;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 900;
+    }
+
+    .why-item strong {
+        display: block;
+        margin-bottom: 4px;
+        color: #111827;
+    }
+
+    .why-item span {
+        color: #6b7280;
+        font-size: 14px;
+        line-height: 1.6;
+    }
+
+    .cta-box {
+        background: linear-gradient(135deg, #6c5ce7, #00cec9);
+        color: white;
+        border-radius: 34px;
+        padding: 45px;
+        text-align: center;
+        box-shadow: 0 18px 45px rgba(108,92,231,0.25);
+    }
+
+        .cta-box h2 {
+            font-size: 36px;
+            font-weight: 900;
+            margin-bottom: 12px;
+        }
+
+        .cta-box p {
+            color: #f8fafc;
+            margin-bottom: 25px;
+            font-size: 16px;
+        }
+
+    @@media (max-width: 992px) {
+        .hero-content,
+        .why-section {
+            grid-template-columns: 1fr;
+        }
+
+        .hero-gallery {
+            justify-self: start;
+        }
+
+        .features-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .hero-title {
+            font-size: 42px;
+        }
+
+        .why-image-box {
+            height: 300px;
+        }
+    }
+
+    @@media (max-width: 576px) {
+        .hero-section {
+            padding: 55px 25px;
+        }
+
+        .features-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .hero-gallery {
+            grid-template-columns: 1fr;
+            max-width: 100%;
+        }
+
+        .fashion-card:nth-child(2) {
+            margin-top: 0;
+        }
+
+        .why-section {
+            padding: 24px;
+        }
+
+        .why-image-box {
+            height: 260px;
+            padding: 10px;
+        }
+    }
+</style>
+
+<div class="welcome-page">
+
+    <section class="hero-section">
+        <div class="hero-content">
+
+            <div>
+                <div class="hero-badge">
+                    Smart Fashion Experience
+                </div>
+
+                <h1 class="hero-title">
+                    Dress smarter, choose faster, and shop with <span>confidence.</span>
+                </h1>
+
+                <p class="hero-description">
+                    Smart Store is not just another clothes website. It helps you discover stylish products,
+                    find suitable sizes, read real customer reviews, and complete your outfit with matching recommendations.
+                </p>
+
+                <div class="hero-actions">
+                    @if (User.Identity != null && User.Identity.IsAuthenticated)
+                    {
+                        <a class="shop-now-btn" href="/Customer/Home/Index">
+                            Shop Now
+                        </a>
+                    }
+                    else
+                    {
+                        <a class="shop-now-btn" href="/Identity/Account/Login?ReturnUrl=/Customer/Home/Index">
+                            Shop Now
+                        </a>
+                    }
+
+                    <span class="secondary-text">
+                        Find your style in a smarter way.
+                    </span>
+                </div>
+            </div>
+
+            <div class="hero-gallery">
+                <div class="fashion-card">
+                    <img src="/images/welcome/look-1.jpg"
+                         onerror="this.src='/images/category-placeholder.png'"
+                         alt="Fashion Look" />
+                    <div class="fashion-card-title">Modern Casual Wear</div>
+                </div>
+
+                <div class="fashion-card">
+                    <img src="/images/welcome/look-2.jpg"
+                         onerror="this.src='/images/category-placeholder.png'"
+                         alt="Fashion Look" />
+                    <div class="fashion-card-title">Smart Daily Outfits</div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <section class="section-container">
+        <div class="section-title">
+            <h2>Why Smart Store?</h2>
+            <p>
+                We focus on making the shopping journey easier, more personal, and more useful for every customer.
+            </p>
+        </div>
+
+        <div class="features-grid">
+
+            <div class="feature-card">
+                <div class="feature-icon">📏</div>
+                <h4>Size Recommendation</h4>
+                <p>
+                    Customers can enter height, weight, and age to get a recommended size instead of guessing.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">⭐</div>
+                <h4>Real Reviews</h4>
+                <p>
+                    Product ratings and customer feedback help users make better decisions before buying.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">👕</div>
+                <h4>Complete The Look</h4>
+                <p>
+                    The website suggests matching products from different categories to build a full outfit.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">🛒</div>
+                <h4>Simple Shopping</h4>
+                <p>
+                    Clean product pages, easy cart system, and smooth shopping flow from discovery to checkout.
+                </p>
+            </div>
+
+        </div>
+    </section>
+
+    <section class="section-container">
+        <div class="why-section">
+
+            <div class="why-image-box">
+                <img src="/images/welcome/look-3.jpg"
+                     onerror="this.src='/images/category-placeholder.png'"
+                     alt="Smart Store Fashion" />
+            </div>
+
+            <div>
+                <div class="section-title" style="text-align:left; margin-bottom:22px;">
+                    <h2>Not just a brand store. A smarter shopping assistant.</h2>
+                    <p style="margin:0;">
+                        Big fashion websites show products, but Smart Store helps the customer choose better.
+                    </p>
+                </div>
+
+                <div class="why-list">
+
+                    <div class="why-item">
+                        <div class="why-number">1</div>
+                        <div>
+                            <strong>More personalized</strong>
+                            <span>
+                                Instead of browsing randomly, customers get size support and better filtering.
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="why-item">
+                        <div class="why-number">2</div>
+                        <div>
+                            <strong>Better outfit decisions</strong>
+                            <span>
+                                Complete The Look helps users discover matching products without extra searching.
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="why-item">
+                        <div class="why-number">3</div>
+                        <div>
+                            <strong>Focused on comfort</strong>
+                            <span>
+                                The website is designed to make shopping simple, clear, and fast for every user.
+                            </span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <section class="section-container">
+        <div class="cta-box">
+            <h2>Ready to discover your next outfit?</h2>
+            <p>
+                Start shopping now and enjoy a smarter fashion experience built around your style.
+            </p>
+
+            @if (User.Identity != null && User.Identity.IsAuthenticated)
+            {
+                <a class="shop-now-btn" href="/Customer/Home/Index">
+                    Shop Now
+                </a>
+            }
+            else
+            {
+                <a class="shop-now-btn" href="/Identity/Account/Login?ReturnUrl=/Customer/Home/Index">
+                    Shop Now
+                </a>
+            }
+        </div>
+    </section>
+
+</div>

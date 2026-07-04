@@ -24,8 +24,7 @@ namespace Smart_Store_For_Clothes.Areas.Admin.Controllers
         {
             int pageSize = 10;
 
-            var productsQuery = _unitOfWork.Products.GetAll()
-                .Where(p => !p.IsDeleted);
+            var productsQuery = _unitOfWork.Products.GetAll();
 
             int totalCount = productsQuery.Count();
 
@@ -86,8 +85,7 @@ namespace Smart_Store_For_Clothes.Areas.Admin.Controllers
                     Price = model.Price,
                     CategoryId = model.CategoryId,
                     Gender = model.Gender,
-                    ImageUrl = imagePath,
-                    IsDeleted = false
+                    ImageUrl = imagePath
                 };
 
                 _unitOfWork.Products.Add(product);
@@ -106,7 +104,7 @@ namespace Smart_Store_For_Clothes.Areas.Admin.Controllers
         {
             var product = _unitOfWork.Products.GetById(id);
 
-            if (product == null || product.IsDeleted)
+            if (product == null)
             {
                 return NotFound();
             }
@@ -134,7 +132,7 @@ namespace Smart_Store_For_Clothes.Areas.Admin.Controllers
             {
                 var product = _unitOfWork.Products.GetById(model.Id);
 
-                if (product == null || product.IsDeleted)
+                if (product == null)
                 {
                     return NotFound();
                 }
@@ -177,6 +175,24 @@ namespace Smart_Store_For_Clothes.Areas.Admin.Controllers
                 return NotFound();
             }
 
+            bool productHasOrders = _unitOfWork.OrderItems.GetAll()
+                .Any(oi => oi.ProductId == id);
+
+            if (productHasOrders)
+            {
+                TempData["error"] = "Cannot delete this product because it is already used in orders.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            var productSizes = _unitOfWork.ProductSizes.GetAll()
+                .Where(ps => ps.ProductId == id)
+                .ToList();
+
+            foreach (var productSize in productSizes)
+            {
+                _unitOfWork.ProductSizes.Delete(productSize);
+            }
+
             var cartItems = _unitOfWork.CartItems.GetAll()
                 .Where(ci => ci.ProductId == id)
                 .ToList();
@@ -186,9 +202,21 @@ namespace Smart_Store_For_Clothes.Areas.Admin.Controllers
                 _unitOfWork.CartItems.Delete(cartItem);
             }
 
-            productFromDb.IsDeleted = true;
+            var reviews = _unitOfWork.ProductReviews.GetAll()
+                .Where(r => r.ProductId == id)
+                .ToList();
 
-            _unitOfWork.Products.Update(productFromDb);
+            foreach (var review in reviews)
+            {
+                _unitOfWork.ProductReviews.Delete(review);
+            }
+
+            if (!string.IsNullOrEmpty(productFromDb.ImageUrl))
+            {
+                DeleteFile(productFromDb.ImageUrl);
+            }
+
+            _unitOfWork.Products.Delete(productFromDb);
             _unitOfWork.Save();
 
             TempData["success"] = "Product deleted successfully";
@@ -200,7 +228,7 @@ namespace Smart_Store_For_Clothes.Areas.Admin.Controllers
         {
             var product = _unitOfWork.Products.GetById(id);
 
-            if (product == null || product.IsDeleted)
+            if (product == null)
             {
                 return NotFound();
             }
@@ -234,7 +262,7 @@ namespace Smart_Store_For_Clothes.Areas.Admin.Controllers
         {
             var product = _unitOfWork.Products.GetById(model.ProductId);
 
-            if (product == null || product.IsDeleted)
+            if (product == null)
             {
                 return NotFound();
             }

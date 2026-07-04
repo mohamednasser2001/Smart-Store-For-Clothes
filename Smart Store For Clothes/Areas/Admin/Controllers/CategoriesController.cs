@@ -34,7 +34,6 @@ namespace Smart_Store_For_Clothes.Areas.Admin.Controllers
                     Description = c.Description,
                     ImageUrl = c.ImageUrl,
 
-                    // Count all products linked to this category, even archived/soft-deleted ones
                     ProductsCount = _unitOfWork.Products.GetAll()
                         .Count(p => p.CategoryId == c.Id)
                 })

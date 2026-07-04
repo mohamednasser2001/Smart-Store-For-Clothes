@@ -22,10 +22,14 @@ namespace Smart_Store_For_Clothes.Areas.Customer.Controllers
             _userManager = userManager;
         }
 
+        public IActionResult Welcome()
+        {
+            return View();
+        }
+
         public IActionResult Index()
         {
             var products = _unitOfWork.Products.GetAll()
-                .Where(p => !p.IsDeleted)
                 .ToList();
 
             var reviews = _unitOfWork.ProductReviews.GetAll().ToList();
@@ -91,7 +95,6 @@ namespace Smart_Store_For_Clothes.Areas.Customer.Controllers
             }
 
             var productsQuery = _unitOfWork.Products.GetAll()
-                .Where(p => !p.IsDeleted)
                 .ToList();
 
             if (categoryId.HasValue)
@@ -157,7 +160,7 @@ namespace Smart_Store_For_Clothes.Areas.Customer.Controllers
         {
             var product = _unitOfWork.Products.GetById(id);
 
-            if (product == null || product.IsDeleted)
+            if (product == null)
             {
                 return NotFound();
             }
@@ -215,7 +218,6 @@ namespace Smart_Store_For_Clothes.Areas.Customer.Controllers
 
             var recommendedProducts = _unitOfWork.Products.GetAll()
                 .Where(p =>
-                    !p.IsDeleted &&
                     p.Id != product.Id &&
                     p.Gender == product.Gender &&
                     p.CategoryId != product.CategoryId)
@@ -278,7 +280,7 @@ namespace Smart_Store_For_Clothes.Areas.Customer.Controllers
         {
             var product = _unitOfWork.Products.GetById(productId);
 
-            if (product == null || product.IsDeleted)
+            if (product == null)
             {
                 return NotFound();
             }

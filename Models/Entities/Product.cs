@@ -21,8 +21,6 @@ namespace Models.Entities
         [Required]
         public string Gender { get; set; } = null!;
 
-        public bool IsDeleted { get; set; } = false;
-
         // FK
         public int CategoryId { get; set; }
 
