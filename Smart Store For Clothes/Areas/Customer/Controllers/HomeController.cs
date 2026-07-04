@@ -273,6 +273,75 @@ namespace Smart_Store_For_Clothes.Areas.Customer.Controllers
             return View(vm);
         }
 
+        [HttpGet]
+        public IActionResult Compare(string ids)
+        {
+            if (string.IsNullOrWhiteSpace(ids))
+            {
+                TempData["error"] = "Please select products to compare.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            var productIds = ids
+                .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                .Select(id =>
+                {
+                    bool isValid = int.TryParse(id, out int productId);
+                    return new { isValid, productId };
+                })
+                .Where(x => x.isValid)
+                .Select(x => x.productId)
+                .Distinct()
+                .Take(3)
+                .ToList();
+
+            if (productIds.Count < 2)
+            {
+                TempData["error"] = "Please select at least 2 products to compare.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            var allReviews = _unitOfWork.ProductReviews.GetAll().ToList();
+
+            var productsFromDb = _unitOfWork.Products.GetAll()
+                .Where(p => productIds.Contains(p.Id))
+                .ToList();
+
+            var productsVM = productIds
+                .Select(id => productsFromDb.FirstOrDefault(p => p.Id == id))
+                .Where(p => p != null)
+                .Select(p =>
+                {
+                    var productReviews = allReviews.Where(r => r.ProductId == p!.Id).ToList();
+
+                    return new ProductCardVM
+                    {
+                        Id = p!.Id,
+                        Name = p.Name,
+                        Description = p.Description,
+                        Price = p.Price,
+                        ImageUrl = p.ImageUrl,
+                        Gender = p.Gender,
+                        CategoryName = _unitOfWork.Categories.GetById(p.CategoryId)?.Name ?? "No Category",
+
+                        AverageRating = productReviews.Any()
+                            ? productReviews.Average(r => r.Rating)
+                            : 0,
+
+                        ReviewsCount = productReviews.Count
+                    };
+                })
+                .ToList();
+
+            if (productsVM.Count < 2)
+            {
+                TempData["error"] = "Selected products are not available.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            return View(productsVM);
+        }
+
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]

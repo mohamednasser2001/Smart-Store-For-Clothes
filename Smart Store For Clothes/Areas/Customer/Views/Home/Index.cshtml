@@ -62,56 +62,66 @@
         {
             @foreach (var product in Model.Products)
             {
-                <a href="/Customer/Home/Details/@product.Id?height=@Model.Height&weight=@Model.Weight&age=@Model.Age"
-                   class="product-card-link">
+                <div class="product-card-wrapper">
 
-                    <div class="customer-product-card">
+                    <a href="/Customer/Home/Details/@product.Id?height=@Model.Height&weight=@Model.Weight&age=@Model.Age"
+                       class="product-card-link">
 
-                        <div class="customer-product-image" style="position:relative;">
-                            <span class="gender-badge">@product.Gender</span>
-                            <img src="@(string.IsNullOrEmpty(product.ImageUrl) ? "/images/category-placeholder.png" : product.ImageUrl)" />
-                        </div>
+                        <div class="customer-product-card">
 
-                        <div class="customer-product-body">
+                            <div class="customer-product-image" style="position:relative;">
+                                <span class="gender-badge">@product.Gender</span>
+                                <img src="@(string.IsNullOrEmpty(product.ImageUrl) ? "/images/category-placeholder.png" : product.ImageUrl)" />
+                            </div>
 
-                            <div class="customer-product-category">@product.CategoryName</div>
+                            <div class="customer-product-body">
 
-                            <div class="customer-product-name">@product.Name</div>
+                                <div class="customer-product-category">@product.CategoryName</div>
 
-                            <div style="margin:6px 0; font-size:13px;">
+                                <div class="customer-product-name">@product.Name</div>
 
-                                @if (product.ReviewsCount > 0)
-                                {
-                                    <div>
-                                        @for (int i = 1; i <= 5; i++)
-                                        {
-                                            <span style="color:@(i <= Math.Round(product.AverageRating) ? "gold" : "#ddd"); font-size:14px;">
-                                                ★
-                                            </span>
-                                        }
-                                    </div>
+                                <div style="margin:6px 0; font-size:13px;">
 
-                                    <small style="color:gray;">
-                                        @product.AverageRating.ToString("0.0") / 5
-                                        (@product.ReviewsCount review@(product.ReviewsCount > 1 ? "s" : ""))
-                                    </small>
-                                }
-                                else
-                                {
-                                    <small style="color:gray;">No reviews yet</small>
-                                }
+                                    @if (product.ReviewsCount > 0)
+                                    {
+                                        <div>
+                                            @for (int i = 1; i <= 5; i++)
+                                            {
+                                                <span style="color:@(i <= Math.Round(product.AverageRating) ? "gold" : "#ddd"); font-size:14px;">
+                                                    ★
+                                                </span>
+                                            }
+                                        </div>
+
+                                        <small style="color:gray;">
+                                            @product.AverageRating.ToString("0.0") / 5
+                                            (@product.ReviewsCount review@(product.ReviewsCount > 1 ? "s" : ""))
+                                        </small>
+                                    }
+                                    else
+                                    {
+                                        <small style="color:gray;">No reviews yet</small>
+                                    }
+
+                                </div>
+
+                                <div class="customer-product-price">
+                                    $@product.Price.ToString("0.00")
+                                </div>
 
                             </div>
 
-                            <div class="customer-product-price">
-                                $@product.Price.ToString("0.00")
-                            </div>
-
                         </div>
 
-                    </div>
+                    </a>
 
-                </a>
+                    <button type="button"
+                            class="compare-btn"
+                            data-product-id="@product.Id">
+                        ⇄ Compare
+                    </button>
+
+                </div>
             }
         }
         else
@@ -126,7 +136,99 @@
 
 </section>
 
+<div class="compare-floating-bar" id="compareFloatingBar">
+    <div>
+        <strong id="compareCountText">0 products selected</strong>
+        <span>Choose up to 3 products to compare.</span>
+    </div>
+
+    <div class="compare-actions">
+        <button type="button" id="clearCompareBtn">
+            Clear
+        </button>
+
+        <button type="button" id="goCompareBtn">
+            Compare Selected
+        </button>
+    </div>
+</div>
+
 <style>
+    .product-card-wrapper {
+        position: relative;
+    }
+
+    .compare-btn {
+        width: 100%;
+        margin-top: 10px;
+        border: none;
+        background: #111827;
+        color: white;
+        padding: 10px 14px;
+        border-radius: 14px;
+        font-weight: 800;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+        .compare-btn:hover {
+            background: #6c5ce7;
+            transform: translateY(-2px);
+        }
+
+        .compare-btn.selected {
+            background: linear-gradient(135deg, #6c5ce7, #00cec9);
+        }
+
+    .compare-floating-bar {
+        position: fixed;
+        left: 50%;
+        bottom: 22px;
+        transform: translateX(-50%);
+        width: min(760px, calc(100% - 40px));
+        background: #111827;
+        color: white;
+        padding: 16px 20px;
+        border-radius: 20px;
+        box-shadow: 0 12px 35px rgba(0,0,0,0.28);
+        display: none;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        z-index: 9998;
+    }
+
+        .compare-floating-bar span {
+            display: block;
+            color: #d1d5db;
+            font-size: 13px;
+            margin-top: 3px;
+        }
+
+    .compare-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+        .compare-actions button {
+            border: none;
+            padding: 10px 14px;
+            border-radius: 12px;
+            font-weight: 800;
+            cursor: pointer;
+        }
+
+    #clearCompareBtn {
+        background: #374151;
+        color: white;
+    }
+
+    #goCompareBtn {
+        background: white;
+        color: #111827;
+    }
+
     .ai-chat-button {
         position: fixed;
         bottom: 25px;
@@ -216,6 +318,13 @@
             padding: 0 16px;
             cursor: pointer;
         }
+
+    @@media (max-width: 576px) {
+        .compare-floating-bar {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+    }
 </style>
 
 <script>
@@ -263,6 +372,7 @@
                     <p>No products match your current filters.</p>
                 </div>
             `;
+            updateCompareButtons();
             return;
         }
 
@@ -285,47 +395,59 @@
             const safeGender = escapeHtml(product.gender);
 
             productsContainer.innerHTML += `
-                <a href="/Customer/Home/Details/${product.id}?height=${height || ''}&weight=${weight || ''}&age=${age || ''}"
-                   class="product-card-link">
+                <div class="product-card-wrapper">
 
-                    <div class="customer-product-card">
+                    <a href="/Customer/Home/Details/${product.id}?height=${height || ''}&weight=${weight || ''}&age=${age || ''}"
+                       class="product-card-link">
 
-                        <div class="customer-product-image" style="position:relative;">
-                            <span class="gender-badge">${safeGender}</span>
-                            <img src="${escapeAttribute(imageUrl)}" />
-                        </div>
+                        <div class="customer-product-card">
 
-                        <div class="customer-product-body">
+                            <div class="customer-product-image" style="position:relative;">
+                                <span class="gender-badge">${safeGender}</span>
+                                <img src="${escapeAttribute(imageUrl)}" />
+                            </div>
 
-                            <div class="customer-product-category">${safeCategory}</div>
+                            <div class="customer-product-body">
 
-                            <div class="customer-product-name">${safeName}</div>
+                                <div class="customer-product-category">${safeCategory}</div>
 
-                            <div style="margin:6px 0; font-size:13px;">
+                                <div class="customer-product-name">${safeName}</div>
 
-                                ${product.reviewsCount > 0
-                                    ? `
-                                        <div>${starsHtml}</div>
-                                        <small style="color:gray;">
-                                            ${product.averageRating.toFixed(1)} / 5 (${product.reviewsCount})
-                                        </small>
-                                    `
-                                    : `<small style="color:gray;">No reviews yet</small>`
-                                }
+                                <div style="margin:6px 0; font-size:13px;">
+
+                                    ${product.reviewsCount > 0
+                                        ? `
+                                            <div>${starsHtml}</div>
+                                            <small style="color:gray;">
+                                                ${product.averageRating.toFixed(1)} / 5 (${product.reviewsCount})
+                                            </small>
+                                        `
+                                        : `<small style="color:gray;">No reviews yet</small>`
+                                    }
+
+                                </div>
+
+                                <div class="customer-product-price">
+                                    $${Number(product.price).toFixed(2)}
+                                </div>
 
                             </div>
 
-                            <div class="customer-product-price">
-                                $${Number(product.price).toFixed(2)}
-                            </div>
-
                         </div>
 
-                    </div>
+                    </a>
 
-                </a>
+                    <button type="button"
+                            class="compare-btn"
+                            data-product-id="${product.id}">
+                        ⇄ Compare
+                    </button>
+
+                </div>
             `;
         });
+
+        updateCompareButtons();
     }
 
     let typingTimer;
@@ -357,6 +479,95 @@
     function escapeAttribute(value) {
         return escapeHtml(value);
     }
+</script>
+
+<script>
+    const compareFloatingBar = document.getElementById("compareFloatingBar");
+    const compareCountText = document.getElementById("compareCountText");
+    const clearCompareBtn = document.getElementById("clearCompareBtn");
+    const goCompareBtn = document.getElementById("goCompareBtn");
+
+    function getCompareProducts() {
+        const saved = localStorage.getItem("smartStoreCompareProducts");
+
+        if (!saved) {
+            return [];
+        }
+
+        try {
+            return JSON.parse(saved);
+        } catch {
+            return [];
+        }
+    }
+
+    function saveCompareProducts(products) {
+        localStorage.setItem("smartStoreCompareProducts", JSON.stringify(products));
+    }
+
+    function updateCompareButtons() {
+        const selectedProducts = getCompareProducts();
+
+        document.querySelectorAll(".compare-btn").forEach(button => {
+            const productId = button.dataset.productId;
+
+            if (selectedProducts.includes(productId)) {
+                button.classList.add("selected");
+                button.innerText = "✓ Selected";
+            } else {
+                button.classList.remove("selected");
+                button.innerText = "⇄ Compare";
+            }
+        });
+
+        if (selectedProducts.length > 0) {
+            compareFloatingBar.style.display = "flex";
+            compareCountText.innerText = `${selectedProducts.length} product${selectedProducts.length > 1 ? "s" : ""} selected`;
+        } else {
+            compareFloatingBar.style.display = "none";
+        }
+    }
+
+    document.addEventListener("click", function (e) {
+        if (!e.target.classList.contains("compare-btn")) {
+            return;
+        }
+
+        const productId = e.target.dataset.productId;
+        let selectedProducts = getCompareProducts();
+
+        if (selectedProducts.includes(productId)) {
+            selectedProducts = selectedProducts.filter(id => id !== productId);
+        } else {
+            if (selectedProducts.length >= 3) {
+                alert("You can compare up to 3 products only.");
+                return;
+            }
+
+            selectedProducts.push(productId);
+        }
+
+        saveCompareProducts(selectedProducts);
+        updateCompareButtons();
+    });
+
+    clearCompareBtn.addEventListener("click", function () {
+        localStorage.removeItem("smartStoreCompareProducts");
+        updateCompareButtons();
+    });
+
+    goCompareBtn.addEventListener("click", function () {
+        const selectedProducts = getCompareProducts();
+
+        if (selectedProducts.length < 2) {
+            alert("Please select at least 2 products to compare.");
+            return;
+        }
+
+        window.location.href = `/Customer/Home/Compare?ids=${selectedProducts.join(",")}`;
+    });
+
+    updateCompareButtons();
 </script>
 
 <!-- ================= AI CHAT WIDGET ================= -->

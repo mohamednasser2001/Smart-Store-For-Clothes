@@ -1,0 +1,362 @@
+﻿@model List<Models.VM.ProductCardVM>
+
+@{
+    ViewData["Title"] = "Compare Products";
+}
+
+<section class="compare-page">
+
+    <div class="compare-header">
+        <h1>Compare Products</h1>
+        <p>Compare selected products side by side to choose the best one for you.</p>
+
+        <a href="/Customer/Home/Index" class="back-btn">
+            ← Back to Products
+        </a>
+    </div>
+
+    @if (Model != null && Model.Any())
+    {
+        <div class="compare-table-wrapper">
+
+            <table class="compare-table">
+
+                <thead>
+                    <tr>
+                        <th>Feature</th>
+
+                        @foreach (var product in Model)
+                        {
+                            <th>
+                                <div class="compare-product-top">
+                                    <button type="button"
+                                            class="remove-compare-btn"
+                                            data-product-id="@product.Id">
+                                        ×
+                                    </button>
+
+                                    <img src="@(string.IsNullOrEmpty(product.ImageUrl) ? "/images/category-placeholder.png" : product.ImageUrl)"
+                                         alt="@product.Name" />
+
+                                    <h3>@product.Name</h3>
+                                </div>
+                            </th>
+                        }
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    <tr>
+                        <td class="feature-name">Price</td>
+
+                        @foreach (var product in Model)
+                        {
+                            <td class="price-cell">
+                                $@product.Price.ToString("0.00")
+                            </td>
+                        }
+                    </tr>
+
+                    <tr>
+                        <td class="feature-name">Category</td>
+
+                        @foreach (var product in Model)
+                        {
+                            <td>@product.CategoryName</td>
+                        }
+                    </tr>
+
+                    <tr>
+                        <td class="feature-name">Gender</td>
+
+                        @foreach (var product in Model)
+                        {
+                            <td>
+                                <span class="gender-pill">@product.Gender</span>
+                            </td>
+                        }
+                    </tr>
+
+                    <tr>
+                        <td class="feature-name">Rating</td>
+
+                        @foreach (var product in Model)
+                        {
+                            <td>
+                                @if (product.ReviewsCount > 0)
+                                {
+                                    <div class="stars">
+                                        @for (int i = 1; i <= 5; i++)
+                                        {
+                                            <span style="color:@(i <= Math.Round(product.AverageRating) ? "gold" : "#ddd");">
+                                                ★
+                                            </span>
+                                        }
+                                    </div>
+
+                                    <small>
+                                        @product.AverageRating.ToString("0.0") / 5
+                                        (@product.ReviewsCount review@(product.ReviewsCount > 1 ? "s" : ""))
+                                    </small>
+                                }
+                                else
+                                {
+                                    <small class="muted-text">No reviews yet</small>
+                                }
+                            </td>
+                        }
+                    </tr>
+
+                    <tr>
+                        <td class="feature-name">Description</td>
+
+                        @foreach (var product in Model)
+                        {
+                            <td class="description-cell">
+                                @(string.IsNullOrWhiteSpace(product.Description) ? "No description available." : product.Description)
+                            </td>
+                        }
+                    </tr>
+
+                    <tr>
+                        <td class="feature-name">Action</td>
+
+                        @foreach (var product in Model)
+                        {
+                            <td>
+                                <a href="/Customer/Home/Details/@product.Id" class="details-btn">
+                                    View Details
+                                </a>
+                            </td>
+                        }
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+    }
+    else
+    {
+        <div class="empty-compare">
+            <h3>No products selected</h3>
+            <p>Please select at least two products to compare.</p>
+            <a href="/Customer/Home/Index" class="details-btn">Go to Products</a>
+        </div>
+    }
+
+</section>
+
+<style>
+    .compare-page {
+        background: #f7f8fc;
+        min-height: 100vh;
+        padding: 35px 20px 70px;
+    }
+
+    .compare-header {
+        max-width: 1150px;
+        margin: 0 auto 30px;
+        text-align: center;
+    }
+
+        .compare-header h1 {
+            font-size: 40px;
+            font-weight: 900;
+            color: #111827;
+            margin-bottom: 8px;
+        }
+
+        .compare-header p {
+            color: #6b7280;
+            margin-bottom: 18px;
+        }
+
+    .back-btn {
+        display: inline-block;
+        text-decoration: none;
+        background: #111827;
+        color: white;
+        padding: 11px 18px;
+        border-radius: 14px;
+        font-weight: 800;
+    }
+
+        .back-btn:hover {
+            color: white;
+            background: #6c5ce7;
+        }
+
+    .compare-table-wrapper {
+        max-width: 1150px;
+        margin: auto;
+        background: white;
+        border-radius: 28px;
+        box-shadow: 0 14px 35px rgba(0,0,0,0.07);
+        overflow-x: auto;
+        border: 1px solid #eef0f5;
+    }
+
+    .compare-table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 850px;
+    }
+
+        .compare-table th,
+        .compare-table td {
+            padding: 22px;
+            text-align: center;
+            border-bottom: 1px solid #eef0f5;
+            vertical-align: middle;
+        }
+
+            .compare-table th:first-child,
+            .compare-table td:first-child {
+                text-align: left;
+                width: 180px;
+                background: #f9fafb;
+            }
+
+        .compare-table thead th {
+            background: #ffffff;
+        }
+
+    .feature-name {
+        font-weight: 900;
+        color: #111827;
+    }
+
+    .compare-product-top {
+        position: relative;
+    }
+
+        .compare-product-top img {
+            width: 150px;
+            height: 160px;
+            object-fit: cover;
+            border-radius: 20px;
+            background: #f3f4f6;
+            margin-bottom: 12px;
+        }
+
+        .compare-product-top h3 {
+            font-size: 18px;
+            font-weight: 900;
+            color: #111827;
+            margin: 0;
+        }
+
+    .remove-compare-btn {
+        position: absolute;
+        top: -8px;
+        right: 18px;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        border: none;
+        background: #ef4444;
+        color: white;
+        font-size: 20px;
+        line-height: 1;
+        cursor: pointer;
+        font-weight: bold;
+    }
+
+    .price-cell {
+        font-size: 20px;
+        font-weight: 900;
+        color: #6c5ce7;
+    }
+
+    .gender-pill {
+        display: inline-block;
+        background: #eef2ff;
+        color: #3730a3;
+        padding: 8px 14px;
+        border-radius: 999px;
+        font-weight: 800;
+        font-size: 14px;
+    }
+
+    .stars {
+        font-size: 18px;
+        margin-bottom: 4px;
+    }
+
+    .muted-text {
+        color: #6b7280;
+    }
+
+    .description-cell {
+        color: #6b7280;
+        line-height: 1.7;
+        font-size: 14px;
+        max-width: 260px;
+    }
+
+    .details-btn {
+        display: inline-block;
+        text-decoration: none;
+        background: linear-gradient(135deg, #6c5ce7, #00cec9);
+        color: white;
+        padding: 11px 18px;
+        border-radius: 14px;
+        font-weight: 900;
+    }
+
+        .details-btn:hover {
+            color: white;
+            transform: translateY(-2px);
+        }
+
+    .empty-compare {
+        max-width: 650px;
+        margin: 70px auto;
+        background: white;
+        text-align: center;
+        padding: 45px;
+        border-radius: 28px;
+        box-shadow: 0 14px 35px rgba(0,0,0,0.07);
+    }
+
+        .empty-compare h3 {
+            font-weight: 900;
+            color: #111827;
+            margin-bottom: 10px;
+        }
+
+        .empty-compare p {
+            color: #6b7280;
+            margin-bottom: 22px;
+        }
+</style>
+
+<script>
+    document.querySelectorAll(".remove-compare-btn").forEach(button => {
+        button.addEventListener("click", function () {
+            const productId = this.dataset.productId;
+
+            let selectedProducts = [];
+
+            try {
+                selectedProducts = JSON.parse(localStorage.getItem("smartStoreCompareProducts")) || [];
+            } catch {
+                selectedProducts = [];
+            }
+
+            selectedProducts = selectedProducts.filter(id => id !== productId);
+
+            localStorage.setItem("smartStoreCompareProducts", JSON.stringify(selectedProducts));
+
+            if (selectedProducts.length >= 2) {
+                window.location.href = `/Customer/Home/Compare?ids=${selectedProducts.join(",")}`;
+            } else {
+                localStorage.removeItem("smartStoreCompareProducts");
+                window.location.href = "/Customer/Home/Index";
+            }
+        });
+    });
+</script>
