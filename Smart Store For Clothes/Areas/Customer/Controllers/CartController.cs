@@ -20,6 +20,7 @@ namespace Smart_Store_For_Clothes.Areas.Customer.Controllers
             _unitOfWork = unitOfWork;
             _userManager = userManager;
         }
+
         [HttpGet]
         public IActionResult Index()
         {
@@ -37,24 +38,70 @@ namespace Smart_Store_For_Clothes.Areas.Customer.Controllers
                 foreach (var item in cart.CartItems)
                 {
                     item.Product = _unitOfWork.Products.GetById(item.ProductId);
-                    // السطر ده عشان نجيب بيانات المقاس
                     item.Size = _unitOfWork.Sizes.GetById(item.SizeId);
                 }
             }
             else
             {
-                cart = new Cart { UserId = userId, CartItems = new List<CartItem>() };
+                cart = new Cart
+                {
+                    UserId = userId,
+                    CartItems = new List<CartItem>()
+                };
             }
 
-            CartVM cartVM = new CartVM() { Cart = cart };
+            CartVM cartVM = new CartVM()
+            {
+                Cart = cart
+            };
+
             return View(cartVM);
         }
 
         [HttpPost]
         [Authorize]
-        public IActionResult AddToCart(int productId, int sizeId, int quantity = 1)
+        [ValidateAntiForgeryToken]
+        public IActionResult AddToCart(int productId, int sizeId, string? colorName, int quantity = 1)
         {
             var userId = _userManager.GetUserId(User);
+
+            if (string.IsNullOrEmpty(userId))
+            {
+                return RedirectToAction("Login", "Account", new { area = "Identity" });
+            }
+
+            var product = _unitOfWork.Products.GetById(productId);
+
+            if (product == null)
+            {
+                return RedirectToAction("Index", "Home");
+            }
+
+            string? selectedColor = string.IsNullOrWhiteSpace(colorName)
+                ? null
+                : colorName.Trim();
+
+            var productColors = _unitOfWork.ProductColors.GetAll()
+                .Where(c => c.ProductId == productId)
+                .ToList();
+
+            if (productColors.Any())
+            {
+                if (string.IsNullOrWhiteSpace(selectedColor))
+                {
+                    TempData["error"] = "Please select a color first.";
+                    return RedirectToAction("Details", "Home", new { id = productId });
+                }
+
+                bool colorExists = productColors.Any(c =>
+                    c.ColorName.Equals(selectedColor, StringComparison.OrdinalIgnoreCase));
+
+                if (!colorExists)
+                {
+                    TempData["error"] = "Selected color is not available.";
+                    return RedirectToAction("Details", "Home", new { id = productId });
+                }
+            }
 
             var cart = _unitOfWork.Carts.GetAll()
                 .FirstOrDefault(c => c.UserId == userId);
@@ -70,10 +117,14 @@ namespace Smart_Store_For_Clothes.Areas.Customer.Controllers
                 _unitOfWork.Save();
             }
 
-            var cartItem = _unitOfWork.CartItems.GetAll()
-                .FirstOrDefault(ci => ci.CartId == cart.Id
-                                   && ci.ProductId == productId
-                                   && ci.SizeId == sizeId);
+            var cartItems = _unitOfWork.CartItems.GetAll()
+                .Where(ci => ci.CartId == cart.Id
+                          && ci.ProductId == productId
+                          && ci.SizeId == sizeId)
+                .ToList();
+
+            var cartItem = cartItems.FirstOrDefault(ci =>
+                string.Equals(ci.ColorName ?? "", selectedColor ?? "", StringComparison.OrdinalIgnoreCase));
 
             if (cartItem != null)
             {
@@ -87,6 +138,7 @@ namespace Smart_Store_For_Clothes.Areas.Customer.Controllers
                     CartId = cart.Id,
                     ProductId = productId,
                     SizeId = sizeId,
+                    ColorName = selectedColor,
                     Quantity = quantity
                 };
 
@@ -129,6 +181,11 @@ namespace Smart_Store_For_Clothes.Areas.Customer.Controllers
         {
             var cartItem = _unitOfWork.CartItems.GetById(cartItemId);
 
+            if (cartItem == null)
+            {
+                return RedirectToAction(nameof(Index));
+            }
+
             if (cartItem.Quantity <= 1)
             {
                 _unitOfWork.CartItems.Delete(cartItem);
@@ -146,8 +203,13 @@ namespace Smart_Store_For_Clothes.Areas.Customer.Controllers
         public IActionResult Remove(int cartItemId)
         {
             var cartItem = _unitOfWork.CartItems.GetById(cartItemId);
-            _unitOfWork.CartItems.Delete(cartItem);
-            _unitOfWork.Save();
+
+            if (cartItem != null)
+            {
+                _unitOfWork.CartItems.Delete(cartItem);
+                _unitOfWork.Save();
+            }
+
             return RedirectToAction(nameof(Index));
         }
 
@@ -169,14 +231,21 @@ namespace Smart_Store_For_Clothes.Areas.Customer.Controllers
                 .Where(ci => ci.CartId == cart.Id)
                 .ToList();
 
+            if (!cartItems.Any())
+            {
+                return RedirectToAction("Index");
+            }
+
             decimal subTotal = 0;
 
             foreach (var item in cartItems)
             {
-                var product = _unitOfWork.Products.GetById(item.ProductId);
-                if (product != null)
+                item.Product = _unitOfWork.Products.GetById(item.ProductId);
+                item.Size = _unitOfWork.Sizes.GetById(item.SizeId);
+
+                if (item.Product != null)
                 {
-                    subTotal += product.Price * item.Quantity;
+                    subTotal += item.Product.Price * item.Quantity;
                 }
             }
 
@@ -186,7 +255,8 @@ namespace Smart_Store_For_Clothes.Areas.Customer.Controllers
                 Email = user?.Email ?? "",
                 ShippingCost = 0,
                 SubTotal = subTotal,
-                Total = subTotal
+                Total = subTotal,
+                CartItems = cartItems
             };
 
             return View(checkoutVM);
@@ -221,6 +291,7 @@ namespace Smart_Store_For_Clothes.Areas.Customer.Controllers
             foreach (var item in cartItems)
             {
                 var product = _unitOfWork.Products.GetById(item.ProductId);
+
                 if (product != null)
                 {
                     subTotal += product.Price * item.Quantity;
@@ -270,6 +341,7 @@ namespace Smart_Store_For_Clothes.Areas.Customer.Controllers
                         OrderId = order.Id,
                         ProductId = item.ProductId,
                         SizeId = item.SizeId,
+                        ColorName = item.ColorName,
                         Quantity = item.Quantity,
                         UnitPrice = product.Price,
                         TotalPrice = product.Price * item.Quantity
@@ -280,6 +352,7 @@ namespace Smart_Store_For_Clothes.Areas.Customer.Controllers
             }
 
             _unitOfWork.Save();
+
             foreach (var item in cartItems)
             {
                 _unitOfWork.CartItems.Delete(item);

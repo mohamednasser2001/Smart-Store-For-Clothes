@@ -13,27 +13,49 @@ namespace DataAccess.Repositories
 
         public IRepository<Category> Categories { get; private set; }
         public IRepository<Product> Products { get; private set; }
+
         public IRepository<Size> Sizes { get; private set; }
         public IRepository<ProductSize> ProductSizes { get; private set; }
         public IRepository<SizeRecommendationRule> SizeRecommendationRules { get; private set; }
+
         public IRepository<Cart> Carts { get; private set; }
         public IRepository<CartItem> CartItems { get; private set; }
+
         public IRepository<Order> Orders { get; private set; }
         public IRepository<OrderItem> OrderItems { get; private set; }
+
         public IRepository<ProductReview> ProductReviews { get; private set; }
+
+        public IRepository<FavoriteProduct> FavoriteProducts { get; private set; }
+
+        public IRepository<ProductImage> ProductImages { get; private set; }
+
+        public IRepository<ProductColor> ProductColors { get; private set; }
+
         public UnitOfWork(ApplicationDbContext context)
         {
             _context = context;
+
             Categories = new Repository<Category>(_context);
             Products = new Repository<Product>(_context);
+
             Sizes = new Repository<Size>(_context);
-            ProductSizes= new Repository<ProductSize>(_context);
+            ProductSizes = new Repository<ProductSize>(_context);
             SizeRecommendationRules = new Repository<SizeRecommendationRule>(_context);
+
             Carts = new Repository<Cart>(_context);
             CartItems = new Repository<CartItem>(_context);
+
             Orders = new Repository<Order>(_context);
             OrderItems = new Repository<OrderItem>(_context);
+
             ProductReviews = new Repository<ProductReview>(_context);
+
+            FavoriteProducts = new Repository<FavoriteProduct>(_context);
+
+            ProductImages = new Repository<ProductImage>(_context);
+
+            ProductColors = new Repository<ProductColor>(_context);
         }
 
         public void Save()

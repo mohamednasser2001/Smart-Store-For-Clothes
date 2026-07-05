@@ -13,11 +13,21 @@ namespace DataAccess.Repositories.IRepositories
         IRepository<Size> Sizes { get; }
         IRepository<ProductSize> ProductSizes { get; }
         IRepository<SizeRecommendationRule> SizeRecommendationRules { get; }
+
         IRepository<Cart> Carts { get; }
         IRepository<CartItem> CartItems { get; }
+
         IRepository<Order> Orders { get; }
         IRepository<OrderItem> OrderItems { get; }
+
         IRepository<ProductReview> ProductReviews { get; }
+
+        IRepository<FavoriteProduct> FavoriteProducts { get; }
+
+        IRepository<ProductImage> ProductImages { get; }
+
+        IRepository<ProductColor> ProductColors { get; }
+
         void Save();
     }
 }

@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Models.Entities;
 
 namespace Models.VM
 {
@@ -25,7 +26,19 @@ namespace Models.VM
 
         public string? ExistingImageUrl { get; set; }
 
+        public string? ExistingTryOnGifUrl { get; set; }
+
         public IFormFile? ImageFile { get; set; }
+
+        public IFormFile? TryOnGifFile { get; set; }
+
+        public List<IFormFile> AdditionalImages { get; set; } = new List<IFormFile>();
+
+        public string? ColorsText { get; set; }
+
+        public List<ProductImage> ExistingProductImages { get; set; } = new List<ProductImage>();
+
+        public List<ProductColor> ExistingProductColors { get; set; } = new List<ProductColor>();
 
         public IEnumerable<SelectListItem> CategoriesList { get; set; } = new List<SelectListItem>();
 

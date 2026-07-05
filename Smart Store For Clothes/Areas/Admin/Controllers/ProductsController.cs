@@ -72,10 +72,16 @@ namespace Smart_Store_For_Clothes.Areas.Admin.Controllers
             if (ModelState.IsValid)
             {
                 string imagePath = "";
+                string? tryOnVideoPath = null;
 
                 if (model.ImageFile != null)
                 {
                     imagePath = UploadProductImage(model.ImageFile);
+                }
+
+                if (model.TryOnGifFile != null)
+                {
+                    tryOnVideoPath = UploadTryOnVideo(model.TryOnGifFile);
                 }
 
                 Product product = new Product
@@ -85,10 +91,16 @@ namespace Smart_Store_For_Clothes.Areas.Admin.Controllers
                     Price = model.Price,
                     CategoryId = model.CategoryId,
                     Gender = model.Gender,
-                    ImageUrl = imagePath
+                    ImageUrl = imagePath,
+                    TryOnGifUrl = tryOnVideoPath
                 };
 
                 _unitOfWork.Products.Add(product);
+                _unitOfWork.Save();
+
+                UploadAdditionalProductImages(product.Id, model.AdditionalImages);
+                SaveProductColors(product.Id, model.ColorsText);
+
                 _unitOfWork.Save();
 
                 TempData["success"] = "Product created successfully";
@@ -109,6 +121,16 @@ namespace Smart_Store_For_Clothes.Areas.Admin.Controllers
                 return NotFound();
             }
 
+            var existingImages = _unitOfWork.ProductImages.GetAll()
+                .Where(pi => pi.ProductId == id)
+                .OrderBy(pi => pi.DisplayOrder)
+                .ToList();
+
+            var existingColors = _unitOfWork.ProductColors.GetAll()
+                .Where(pc => pc.ProductId == id)
+                .OrderBy(pc => pc.ColorName)
+                .ToList();
+
             CreateProductVM vm = new CreateProductVM
             {
                 Id = product.Id,
@@ -118,6 +140,10 @@ namespace Smart_Store_For_Clothes.Areas.Admin.Controllers
                 CategoryId = product.CategoryId,
                 Gender = product.Gender,
                 ExistingImageUrl = product.ImageUrl,
+                ExistingTryOnGifUrl = product.TryOnGifUrl,
+                ExistingProductImages = existingImages,
+                ExistingProductColors = existingColors,
+                ColorsText = string.Join(", ", existingColors.Select(c => c.ColorName)),
                 CategoriesList = GetCategoriesList()
             };
 
@@ -153,6 +179,19 @@ namespace Smart_Store_For_Clothes.Areas.Admin.Controllers
                     product.ImageUrl = UploadProductImage(model.ImageFile);
                 }
 
+                if (model.TryOnGifFile != null)
+                {
+                    if (!string.IsNullOrEmpty(product.TryOnGifUrl))
+                    {
+                        DeleteFile(product.TryOnGifUrl);
+                    }
+
+                    product.TryOnGifUrl = UploadTryOnVideo(model.TryOnGifFile);
+                }
+
+                UploadAdditionalProductImages(product.Id, model.AdditionalImages);
+                SaveProductColors(product.Id, model.ColorsText);
+
                 _unitOfWork.Products.Update(product);
                 _unitOfWork.Save();
 
@@ -161,7 +200,42 @@ namespace Smart_Store_For_Clothes.Areas.Admin.Controllers
             }
 
             model.CategoriesList = GetCategoriesList();
+
+            model.ExistingProductImages = _unitOfWork.ProductImages.GetAll()
+                .Where(pi => pi.ProductId == model.Id)
+                .OrderBy(pi => pi.DisplayOrder)
+                .ToList();
+
+            model.ExistingProductColors = _unitOfWork.ProductColors.GetAll()
+                .Where(pc => pc.ProductId == model.Id)
+                .OrderBy(pc => pc.ColorName)
+                .ToList();
+
             return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult DeleteProductImage(int imageId, int productId)
+        {
+            var image = _unitOfWork.ProductImages.GetById(imageId);
+
+            if (image == null)
+            {
+                TempData["error"] = "Image not found.";
+                return RedirectToAction(nameof(Edit), new { id = productId });
+            }
+
+            if (!string.IsNullOrEmpty(image.ImageUrl))
+            {
+                DeleteFile(image.ImageUrl);
+            }
+
+            _unitOfWork.ProductImages.Delete(image);
+            _unitOfWork.Save();
+
+            TempData["success"] = "Product image deleted successfully";
+            return RedirectToAction(nameof(Edit), new { id = productId });
         }
 
         [HttpPost]
@@ -211,9 +285,46 @@ namespace Smart_Store_For_Clothes.Areas.Admin.Controllers
                 _unitOfWork.ProductReviews.Delete(review);
             }
 
+            var favorites = _unitOfWork.FavoriteProducts.GetAll()
+                .Where(f => f.ProductId == id)
+                .ToList();
+
+            foreach (var favorite in favorites)
+            {
+                _unitOfWork.FavoriteProducts.Delete(favorite);
+            }
+
+            var productImages = _unitOfWork.ProductImages.GetAll()
+                .Where(pi => pi.ProductId == id)
+                .ToList();
+
+            foreach (var productImage in productImages)
+            {
+                if (!string.IsNullOrEmpty(productImage.ImageUrl))
+                {
+                    DeleteFile(productImage.ImageUrl);
+                }
+
+                _unitOfWork.ProductImages.Delete(productImage);
+            }
+
+            var productColors = _unitOfWork.ProductColors.GetAll()
+                .Where(pc => pc.ProductId == id)
+                .ToList();
+
+            foreach (var productColor in productColors)
+            {
+                _unitOfWork.ProductColors.Delete(productColor);
+            }
+
             if (!string.IsNullOrEmpty(productFromDb.ImageUrl))
             {
                 DeleteFile(productFromDb.ImageUrl);
+            }
+
+            if (!string.IsNullOrEmpty(productFromDb.TryOnGifUrl))
+            {
+                DeleteFile(productFromDb.TryOnGifUrl);
             }
 
             _unitOfWork.Products.Delete(productFromDb);
@@ -307,6 +418,79 @@ namespace Smart_Store_For_Clothes.Areas.Admin.Controllers
                 });
         }
 
+        private void UploadAdditionalProductImages(int productId, List<IFormFile> additionalImages)
+        {
+            if (additionalImages == null || !additionalImages.Any())
+            {
+                return;
+            }
+
+            int displayOrder = _unitOfWork.ProductImages.GetAll()
+                .Where(pi => pi.ProductId == productId)
+                .Select(pi => pi.DisplayOrder)
+                .DefaultIfEmpty(0)
+                .Max();
+
+            foreach (var image in additionalImages)
+            {
+                if (image == null || image.Length == 0)
+                {
+                    continue;
+                }
+
+                displayOrder++;
+
+                ProductImage productImage = new ProductImage
+                {
+                    ProductId = productId,
+                    ImageUrl = UploadProductGalleryImage(image),
+                    DisplayOrder = displayOrder
+                };
+
+                _unitOfWork.ProductImages.Add(productImage);
+            }
+        }
+
+        private void SaveProductColors(int productId, string? colorsText)
+        {
+            var existingColors = _unitOfWork.ProductColors.GetAll()
+                .Where(pc => pc.ProductId == productId)
+                .ToList();
+
+            foreach (var color in existingColors)
+            {
+                _unitOfWork.ProductColors.Delete(color);
+            }
+
+            if (existingColors.Any())
+            {
+                _unitOfWork.Save();
+            }
+
+            if (string.IsNullOrWhiteSpace(colorsText))
+            {
+                return;
+            }
+
+            var colorNames = colorsText
+                .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                .Select(c => c.Trim())
+                .Where(c => !string.IsNullOrWhiteSpace(c))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
+
+            foreach (var colorName in colorNames)
+            {
+                ProductColor productColor = new ProductColor
+                {
+                    ProductId = productId,
+                    ColorName = colorName
+                };
+
+                _unitOfWork.ProductColors.Add(productColor);
+            }
+        }
+
         private string UploadProductImage(IFormFile imageFile)
         {
             string fileName = Guid.NewGuid().ToString() + Path.GetExtension(imageFile.FileName);
@@ -326,6 +510,48 @@ namespace Smart_Store_For_Clothes.Areas.Admin.Controllers
             }
 
             return "/images/" + fileName;
+        }
+
+        private string UploadProductGalleryImage(IFormFile imageFile)
+        {
+            string fileName = Guid.NewGuid().ToString() + Path.GetExtension(imageFile.FileName);
+
+            string folderPath = Path.Combine(_webHostEnvironment.WebRootPath, "images", "products", "gallery");
+
+            if (!Directory.Exists(folderPath))
+            {
+                Directory.CreateDirectory(folderPath);
+            }
+
+            string filePath = Path.Combine(folderPath, fileName);
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                imageFile.CopyTo(stream);
+            }
+
+            return "/images/products/gallery/" + fileName;
+        }
+
+        private string UploadTryOnVideo(IFormFile videoFile)
+        {
+            string fileName = Guid.NewGuid().ToString() + Path.GetExtension(videoFile.FileName);
+
+            string folderPath = Path.Combine(_webHostEnvironment.WebRootPath, "videos", "tryon-videos");
+
+            if (!Directory.Exists(folderPath))
+            {
+                Directory.CreateDirectory(folderPath);
+            }
+
+            string filePath = Path.Combine(folderPath, fileName);
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                videoFile.CopyTo(stream);
+            }
+
+            return "/videos/tryon-videos/" + fileName;
         }
 
         private void DeleteFile(string fileUrl)

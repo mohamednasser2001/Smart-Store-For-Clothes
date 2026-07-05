@@ -2,93 +2,664 @@
 
 @{
     var returnUrl = $"{Context.Request.Path}{Context.Request.QueryString}";
+
+    var galleryImages = new List<string>();
+
+    if (!string.IsNullOrWhiteSpace(Model.ImageUrl))
+    {
+        galleryImages.Add(Model.ImageUrl);
+    }
+
+    if (Model.ProductImages != null && Model.ProductImages.Any())
+    {
+        galleryImages.AddRange(
+            Model.ProductImages
+                .Where(i => !string.IsNullOrWhiteSpace(i.ImageUrl))
+                .Select(i => i.ImageUrl)
+        );
+    }
+
+    if (!galleryImages.Any())
+    {
+        galleryImages.Add("/images/category-placeholder.png");
+    }
+
+    var imagesCount = galleryImages.Count;
+    var colorsCount = Model.ProductColors != null ? Model.ProductColors.Count : 0;
 }
 
 <link rel="stylesheet" href="/css/Customer/product-details.css" />
 
-<div class="container-fluid" style="padding:40px; background:#f7f8fc; min-height:100vh;">
+<style>
+    .details-page {
+        padding: 40px;
+        background: radial-gradient(circle at 10% 10%, rgba(108, 92, 231, 0.10), transparent 28%), radial-gradient(circle at 90% 15%, rgba(0, 206, 201, 0.10), transparent 28%), #f7f8fc;
+        min-height: 100vh;
+    }
+
+    .product-main-card {
+        background: white;
+        padding: 28px;
+        border-radius: 28px;
+        box-shadow: 0 18px 45px rgba(0,0,0,0.07);
+        border: 1px solid #eef0f5;
+    }
+
+    .product-gallery-box {
+        position: relative;
+    }
+
+    .main-product-image {
+        width: 100%;
+        height: 620px;
+        object-fit: cover;
+        border-radius: 22px;
+        box-shadow: 0 14px 35px rgba(0,0,0,0.10);
+        transition: 0.25s ease;
+        background: #f3f4f6;
+    }
+
+    .images-count-badge {
+        position: absolute;
+        top: 16px;
+        left: 16px;
+        background: rgba(17, 24, 39, 0.85);
+        color: white;
+        border-radius: 999px;
+        padding: 8px 13px;
+        font-size: 13px;
+        font-weight: 900;
+        z-index: 4;
+        backdrop-filter: blur(8px);
+    }
+
+    .gallery-thumbnails {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 14px;
+    }
+
+    .gallery-thumb {
+        width: 74px;
+        height: 74px;
+        border-radius: 14px;
+        border: 2px solid transparent;
+        padding: 0;
+        overflow: hidden;
+        cursor: pointer;
+        background: #f3f4f6;
+        transition: 0.22s ease;
+    }
+
+        .gallery-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .gallery-thumb:hover {
+            transform: translateY(-3px);
+            border-color: #6c5ce7;
+        }
+
+        .gallery-thumb.active {
+            border-color: #111827;
+            box-shadow: 0 8px 20px rgba(17,24,39,0.20);
+        }
+
+    .product-colors-box {
+        margin-top: 22px;
+    }
+
+    .product-colors-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 10px;
+    }
+
+        .product-colors-header h5 {
+            margin: 0;
+            font-weight: 900;
+        }
+
+        .product-colors-header span {
+            background: #eef2ff;
+            color: #3730a3;
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+    .product-colors-list {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .color-btn {
+        border: 2px solid #e5e7eb;
+        background: white;
+        color: #111827;
+        border-radius: 999px;
+        padding: 10px 16px;
+        font-weight: 900;
+        cursor: pointer;
+        transition: 0.22s ease;
+    }
+
+        .color-btn:hover {
+            border-color: #6c5ce7;
+            background: #f3f0ff;
+            transform: translateY(-2px);
+        }
+
+        .color-btn.active {
+            background: #111827;
+            color: white;
+            border-color: #111827;
+            box-shadow: 0 10px 24px rgba(17,24,39,0.25);
+        }
+
+    .selected-color-text {
+        margin-top: 9px;
+        color: #6b7280;
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+    .tryon-card {
+        position: relative;
+        background: linear-gradient(135deg, #111827, #2d1b69, #6c5ce7);
+        border-radius: 26px;
+        padding: 18px;
+        color: white;
+        overflow: hidden;
+        max-width: 320px;
+        margin-left: auto;
+        box-shadow: 0 20px 50px rgba(108,92,231,0.28);
+    }
+
+        .tryon-card::before {
+            content: "";
+            position: absolute;
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #00cec9, #6c5ce7);
+            top: -65px;
+            right: -65px;
+            opacity: 0.75;
+            filter: blur(6px);
+            animation: tryOnGlow 5s ease-in-out infinite;
+        }
+
+        .tryon-card::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(120deg, transparent, rgba(255,255,255,0.16), transparent);
+            transform: translateX(-110%);
+            animation: tryOnSweep 3.8s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+    .tryon-header {
+        position: relative;
+        z-index: 2;
+        margin-bottom: 14px;
+    }
+
+    .tryon-badge {
+        display: inline-block;
+        background: rgba(255,255,255,0.16);
+        border: 1px solid rgba(255,255,255,0.28);
+        padding: 7px 13px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 900;
+        margin-bottom: 10px;
+    }
+
+    .tryon-header h4 {
+        font-weight: 900;
+        margin-bottom: 6px;
+        font-size: 18px;
+    }
+
+    .tryon-header p {
+        color: #e5e7eb;
+        font-size: 13px;
+        line-height: 1.6;
+        margin: 0;
+    }
+
+    .tryon-preview-box {
+        position: relative;
+        z-index: 2;
+        background: rgba(255,255,255,0.14);
+        border: 1px solid rgba(255,255,255,0.24);
+        border-radius: 22px;
+        padding: 10px;
+        min-height: 260px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        backdrop-filter: blur(12px);
+    }
+
+    .tryon-video-thumb {
+        position: relative;
+        width: 100%;
+        border-radius: 18px;
+        overflow: hidden;
+        cursor: pointer;
+        border: 1px solid rgba(255,255,255,0.22);
+        background: rgba(255,255,255,0.08);
+        transition: 0.25s ease;
+    }
+
+        .tryon-video-thumb:hover {
+            transform: translateY(-6px) scale(1.02);
+            box-shadow: 0 18px 45px rgba(0,0,0,0.35);
+        }
+
+        .tryon-video-thumb video {
+            width: 100%;
+            height: 250px;
+            object-fit: contain;
+            display: block;
+            background: rgba(255,255,255,0.08);
+        }
+
+    .tryon-click-layer {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+        padding: 14px;
+        background: linear-gradient(to top, rgba(0,0,0,0.62), transparent 60%);
+        pointer-events: none;
+    }
+
+        .tryon-click-layer span {
+            background: white;
+            color: #111827;
+            padding: 9px 16px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 900;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+        }
+
+    .tryon-placeholder {
+        text-align: center;
+        padding: 20px;
+    }
+
+    .tryon-placeholder-icon {
+        font-size: 52px;
+        margin-bottom: 14px;
+        animation: tryOnIconFloat 2s ease-in-out infinite;
+    }
+
+    .tryon-placeholder strong {
+        display: block;
+        font-size: 17px;
+        margin-bottom: 8px;
+    }
+
+    .tryon-placeholder span {
+        color: #d1d5db;
+        font-size: 13px;
+        line-height: 1.6;
+    }
+
+    .tryon-floating-text {
+        position: relative;
+        z-index: 2;
+        margin-top: 14px;
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+        .tryon-floating-text span {
+            background: rgba(255,255,255,0.16);
+            border: 1px solid rgba(255,255,255,0.22);
+            padding: 7px 10px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 800;
+        }
+
+    .tryon-modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(17, 24, 39, 0.78);
+        backdrop-filter: blur(12px);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 25px;
+        z-index: 99999;
+    }
+
+        .tryon-modal-overlay.active {
+            display: flex;
+        }
+
+    .tryon-modal-content {
+        position: relative;
+        width: min(560px, 95vw);
+        background: #111827;
+        border-radius: 28px;
+        padding: 18px;
+        box-shadow: 0 30px 90px rgba(0,0,0,0.45);
+        border: 1px solid rgba(255,255,255,0.16);
+    }
+
+        .tryon-modal-content video {
+            width: 100%;
+            max-height: 75vh;
+            object-fit: contain;
+            border-radius: 22px;
+            background: black;
+        }
+
+    .tryon-modal-close {
+        position: absolute;
+        top: -14px;
+        right: -14px;
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        border: none;
+        background: white;
+        color: #111827;
+        font-size: 26px;
+        font-weight: bold;
+        cursor: pointer;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+        z-index: 2;
+    }
+
+    .details-info-card {
+        height: 100%;
+        padding: 8px 4px;
+    }
+
+    .size-btn.active {
+        background: #111827 !important;
+        color: white !important;
+    }
+
+    @@keyframes tryOnGlow {
+        0%, 100% {
+            transform: translate(0, 0) scale(1);
+        }
+
+        50% {
+            transform: translate(-35px, 45px) scale(1.15);
+        }
+    }
+
+    @@keyframes tryOnSweep {
+        0%, 60% {
+            transform: translateX(-110%);
+        }
+
+        100% {
+            transform: translateX(110%);
+        }
+    }
+
+    @@keyframes tryOnIconFloat {
+        0%, 100% {
+            transform: translateY(0);
+        }
+
+        50% {
+            transform: translateY(-8px);
+        }
+    }
+
+    @@media (max-width: 992px) {
+        .details-page {
+            padding: 20px;
+        }
+
+        .main-product-image {
+            height: 450px;
+        }
+
+        .tryon-card {
+            min-height: auto;
+            margin-top: 24px;
+            margin-left: 0;
+        }
+
+        .tryon-preview-box video {
+            height: 330px;
+        }
+    }
+</style>
+
+<div class="container-fluid details-page">
 
     <!-- PRODUCT SECTION -->
-    <div class="row bg-white p-4 rounded shadow-sm">
+    <div class="row product-main-card">
 
-        <!-- IMAGE -->
-        <div class="col-md-5">
-            <img src="@(string.IsNullOrEmpty(Model.ImageUrl) ? "/images/category-placeholder.png" : Model.ImageUrl)"
-                 style="width:100%; max-height:620px; object-fit:cover; border-radius:15px;" />
+        <!-- IMAGE GALLERY -->
+        <div class="col-lg-4 col-md-12 mb-4 mb-lg-0">
+
+            <div class="product-gallery-box">
+
+                <div class="images-count-badge">
+                    📷 @imagesCount Image@(imagesCount > 1 ? "s" : "")
+                </div>
+
+                <img src="@galleryImages.First()"
+                     class="main-product-image"
+                     id="mainGalleryImage" />
+
+            </div>
+
+            @if (galleryImages.Count > 1)
+            {
+                <div class="gallery-thumbnails">
+                    @for (int i = 0; i < galleryImages.Count; i++)
+                    {
+                        <button type="button"
+                                class="gallery-thumb @(i == 0 ? "active" : "")"
+                                data-image="@galleryImages[i]">
+
+                            <img src="@galleryImages[i]" />
+
+                        </button>
+                    }
+                </div>
+            }
+
         </div>
 
         <!-- INFO -->
-        <div class="col-md-7">
+        <div class="col-lg-5 col-md-12">
+            <div class="details-info-card">
 
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-                <div>
-                    <h2 style="margin-bottom:5px;">@Model.Name</h2>
-                    <div style="color:gray;">@Model.CategoryName</div>
+                <div style="display:flex; justify-content:space-between; align-items:center; gap:15px;">
+                    <div>
+                        <h2 style="margin-bottom:5px; font-weight:900;">@Model.Name</h2>
+                        <div style="color:gray;">@Model.CategoryName</div>
+                    </div>
+
+                    <div>
+                        @if (Model.Reviews != null && Model.Reviews.Any())
+                        {
+                            <strong style="color:#f5b400;">
+                                ★ @Model.AverageRating.ToString("0.0")
+                            </strong>
+                            <span style="color:gray;">(@Model.ReviewsCount)</span>
+                        }
+                        else
+                        {
+                            <span style="color:gray;">No rating</span>
+                        }
+                    </div>
                 </div>
 
-                <div>
-                    @if (Model.Reviews != null && Model.Reviews.Any())
+                <h3 style="margin:18px 0; font-weight:900; color:#6c5ce7;">
+                    $@Model.Price.ToString("0.00")
+                </h3>
+
+                @if (!string.IsNullOrWhiteSpace(Model.Description))
+                {
+                    <p style="line-height:1.8; color:#444;">@Model.Description</p>
+                }
+
+                @if (!string.IsNullOrWhiteSpace(Model.RecommendedSize))
+                {
+                    <div style="
+                        margin:18px 0;
+                        padding:14px 18px;
+                        border-radius:18px;
+                        background:#f3f0ff;
+                        color:#2f1f7a;
+                        font-weight:800;
+                        border:1px solid #ddd6ff;">
+                        Recommended Size: @Model.RecommendedSize
+                    </div>
+                }
+
+                <!-- COLORS -->
+                @if (Model.ProductColors != null && Model.ProductColors.Any())
+                {
+                    <div class="product-colors-box">
+
+                        <div class="product-colors-header">
+                            <h5>Colors</h5>
+                            <span>@colorsCount available</span>
+                        </div>
+
+                        <div class="product-colors-list">
+                            @foreach (var color in Model.ProductColors)
+                            {
+                                <button type="button"
+                                        class="color-btn"
+                                        data-color-name="@color.ColorName">
+                                    @color.ColorName
+                                </button>
+                            }
+                        </div>
+
+                        <div class="selected-color-text" id="selectedColorText">
+                            Please select your color.
+                        </div>
+
+                    </div>
+                }
+
+                <!-- SIZES -->
+                <h5 style="margin-top:22px; font-weight:900;">Sizes</h5>
+
+                <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                    @if (Model.Sizes != null && Model.Sizes.Any())
                     {
-                        <strong style="color:#f5b400;">
-                            ★ @Model.AverageRating.ToString("0.0")
-                        </strong>
-                        <span style="color:gray;">(@Model.ReviewsCount)</span>
+                        foreach (var s in Model.Sizes)
+                        {
+                            <button type="button"
+                                    class="btn btn-light size-btn"
+                                    data-size-id="@s.SizeId">
+                                @s.SizeName
+                            </button>
+                        }
                     }
                     else
                     {
-                        <span style="color:gray;">No rating</span>
+                        <p>No sizes available.</p>
                     }
                 </div>
+
+                <form asp-area="Customer"
+                      asp-controller="Cart"
+                      asp-action="AddToCart"
+                      method="post"
+                      class="mt-3"
+                      id="addToCartForm">
+
+                    @Html.AntiForgeryToken()
+
+                    <input type="hidden" name="productId" value="@Model.Id" />
+                    <input type="hidden" name="sizeId" id="sizeId" />
+                    <input type="hidden" name="colorName" id="selectedColorName" />
+                    <input type="hidden" name="quantity" value="1" />
+
+                    <button type="submit" class="btn btn-success px-4">
+                        Add to Cart
+                    </button>
+                </form>
+
             </div>
+        </div>
 
-            <h3 style="margin:15px 0;">
-                $@Model.Price.ToString("0.00")
-            </h3>
+        <!-- TRY ON VIDEO -->
+        <div class="col-lg-3 col-md-12">
+            <div class="tryon-card">
 
-            @if (!string.IsNullOrWhiteSpace(Model.Description))
-            {
-                <p>@Model.Description</p>
-            }
+                <div class="tryon-header">
+                    <div class="tryon-badge">360° Try-On Preview</div>
 
-            <!-- SIZES -->
-            <h5 style="margin-top:20px;">Sizes</h5>
+                    <h4>See it in motion</h4>
 
-            <div style="display:flex; gap:10px; flex-wrap:wrap;">
-                @if (Model.Sizes != null && Model.Sizes.Any())
-                {
-                    foreach (var s in Model.Sizes)
+                    <p>
+                        Click the preview to watch this product in a larger view.
+                    </p>
+                </div>
+
+                <div class="tryon-preview-box">
+                    @if (!string.IsNullOrWhiteSpace(Model.TryOnGifUrl))
                     {
-                        <button type="button"
-                                class="btn btn-light size-btn"
-                                data-size-id="@s.SizeId">
-                            @s.SizeName
-                        </button>
+                        <div class="tryon-video-thumb"
+                             id="tryOnThumb"
+                             role="button"
+                             tabindex="0">
+
+                            <video src="@Model.TryOnGifUrl"
+                                   autoplay
+                                   muted
+                                   loop
+                                   playsinline>
+                            </video>
+
+                            <div class="tryon-click-layer">
+                                <span>Click here</span>
+                            </div>
+
+                        </div>
                     }
-                }
-                else
-                {
-                    <p>No sizes available.</p>
-                }
+                    else
+                    {
+                        <div class="tryon-placeholder">
+                            <div class="tryon-placeholder-icon">🧍‍♂️</div>
+                            <strong>No Try-On Video yet</strong>
+                            <span>
+                                Upload a product video from the admin panel to show a rotating outfit preview here.
+                            </span>
+                        </div>
+                    }
+                </div>
+
+                <div class="tryon-floating-text">
+                    <span>Small preview</span>
+                    <span>Click to enlarge</span>
+                    <span>360° motion</span>
+                </div>
+
             </div>
-
-            <form asp-area="Customer"
-                  asp-controller="Cart"
-                  asp-action="AddToCart"
-                  method="post"
-                  class="mt-3"
-                  id="addToCartForm">
-
-                @Html.AntiForgeryToken()
-
-                <input type="hidden" name="productId" value="@Model.Id" />
-                <input type="hidden" name="sizeId" id="sizeId" />
-                <input type="hidden" name="quantity" value="1" />
-
-                <button type="submit" class="btn btn-success px-4">
-                    Add to Cart
-                </button>
-            </form>
-
         </div>
     </div>
 
@@ -197,7 +768,6 @@
 
                             <div style="display:flex; gap:14px; align-items:flex-start;">
 
-                                <!-- USER AVATAR -->
                                 <div style="
                                     width:46px;
                                     height:46px;
@@ -281,7 +851,6 @@
                         <input type="hidden" name="productId" value="@Model.Id" />
                         <input type="hidden" name="rating" id="selectedRating" value="" />
 
-                        <!-- CLICKABLE STARS -->
                         <div style="margin-bottom:12px;">
                             <label style="font-weight:bold;">Rating</label>
 
@@ -301,7 +870,6 @@
                             </small>
                         </div>
 
-                        <!-- COMMENT -->
                         <div style="margin-bottom:12px;">
                             <label style="font-weight:bold;">Comment</label>
 
@@ -342,6 +910,71 @@
 
 </div>
 
+@if (!string.IsNullOrWhiteSpace(Model.TryOnGifUrl))
+{
+    <div class="tryon-modal-overlay" id="tryOnModal">
+        <div class="tryon-modal-content">
+            <button type="button" class="tryon-modal-close" id="closeTryOnModal">
+                ×
+            </button>
+
+            <video id="tryOnModalVideo"
+                   src="@Model.TryOnGifUrl"
+                   controls
+                   muted
+                   loop
+                   playsinline>
+                Your browser does not support the video tag.
+            </video>
+        </div>
+    </div>
+}
+
+<script>
+    const mainGalleryImage = document.getElementById("mainGalleryImage");
+    const galleryThumbs = document.querySelectorAll(".gallery-thumb");
+
+    galleryThumbs.forEach(thumb => {
+        thumb.addEventListener("click", function () {
+            const imageUrl = this.dataset.image;
+
+            if (mainGalleryImage && imageUrl) {
+                mainGalleryImage.style.opacity = "0.35";
+
+                setTimeout(() => {
+                    mainGalleryImage.src = imageUrl;
+                    mainGalleryImage.style.opacity = "1";
+                }, 120);
+            }
+
+            galleryThumbs.forEach(t => t.classList.remove("active"));
+            this.classList.add("active");
+        });
+    });
+
+    const colorButtons = document.querySelectorAll(".color-btn");
+    const selectedColorInput = document.getElementById("selectedColorName");
+    const selectedColorText = document.getElementById("selectedColorText");
+
+    colorButtons.forEach(button => {
+        button.addEventListener("click", function () {
+            const colorName = this.dataset.colorName;
+
+            colorButtons.forEach(btn => btn.classList.remove("active"));
+            this.classList.add("active");
+
+            if (selectedColorInput) {
+                selectedColorInput.value = colorName;
+            }
+
+            if (selectedColorText) {
+                selectedColorText.innerText = `Selected color: ${colorName}`;
+                selectedColorText.style.color = "#111827";
+            }
+        });
+    });
+</script>
+
 <script>
     const sizeButtons = document.querySelectorAll(".size-btn");
     const sizeInput = document.getElementById("sizeId");
@@ -357,9 +990,18 @@
 
     if (addToCartForm) {
         addToCartForm.addEventListener("submit", function (e) {
+            const hasColors = @(Model.ProductColors != null && Model.ProductColors.Any() ? "true" : "false");
+
             if (!sizeInput.value) {
                 e.preventDefault();
                 alert("Please select a size first.");
+                return;
+            }
+
+            if (hasColors && selectedColorInput && !selectedColorInput.value) {
+                e.preventDefault();
+                alert("Please select a color first.");
+                return;
             }
         });
     }
@@ -390,4 +1032,67 @@
             }
         });
     }
+</script>
+
+<script>
+    const tryOnThumb = document.getElementById("tryOnThumb");
+    const tryOnModal = document.getElementById("tryOnModal");
+    const closeTryOnModal = document.getElementById("closeTryOnModal");
+    const tryOnModalVideo = document.getElementById("tryOnModalVideo");
+
+    function openTryOnModal() {
+        if (!tryOnModal) {
+            return;
+        }
+
+        tryOnModal.classList.add("active");
+        document.body.style.overflow = "hidden";
+
+        if (tryOnModalVideo) {
+            tryOnModalVideo.currentTime = 0;
+            tryOnModalVideo.play().catch(() => { });
+        }
+    }
+
+    function closeTryOnModalBox() {
+        if (!tryOnModal) {
+            return;
+        }
+
+        tryOnModal.classList.remove("active");
+        document.body.style.overflow = "";
+
+        if (tryOnModalVideo) {
+            tryOnModalVideo.pause();
+        }
+    }
+
+    if (tryOnThumb) {
+        tryOnThumb.addEventListener("click", openTryOnModal);
+
+        tryOnThumb.addEventListener("keydown", function (e) {
+            if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                openTryOnModal();
+            }
+        });
+    }
+
+    if (closeTryOnModal) {
+        closeTryOnModal.addEventListener("click", closeTryOnModalBox);
+    }
+
+    if (tryOnModal) {
+        tryOnModal.addEventListener("click", function (e) {
+            if (e.target === tryOnModal) {
+                closeTryOnModalBox();
+            }
+        });
+    }
+
+    document.addEventListener("keydown", function (e) {
+        if (e.key === "Escape") {
+            closeTryOnModalBox();
+        }
+    });
 </script>

@@ -16,7 +16,7 @@ namespace Smart_Store_For_Clothes.Areas.Admin.Controllers
         {
             _unitOfWork = unitOfWork;
         }
-        
+
         public IActionResult Index()
         {
             var orders = _unitOfWork.Orders.GetAll()
@@ -29,6 +29,7 @@ namespace Smart_Store_For_Clothes.Areas.Admin.Controllers
 
             return View(orders);
         }
+
         public IActionResult Details(int id)
         {
             var order = _unitOfWork.Orders.GetById(id);
@@ -46,8 +47,12 @@ namespace Smart_Store_For_Clothes.Areas.Admin.Controllers
             {
                 ProductId = item.ProductId,
                 ProductName = _unitOfWork.Products.GetById(item.ProductId)?.Name ?? "Unknown Product",
+
                 SizeId = item.SizeId,
                 SizeName = _unitOfWork.Sizes.GetById(item.SizeId)?.Name ?? "Unknown Size",
+
+                ColorName = item.ColorName,
+
                 Quantity = item.Quantity,
                 UnitPrice = item.UnitPrice,
                 TotalPrice = item.TotalPrice

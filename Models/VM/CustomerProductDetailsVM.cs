@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Models.Entities;
 
 namespace Models.VM
 {
@@ -15,11 +16,17 @@ namespace Models.VM
 
         public string? ImageUrl { get; set; }
 
+        public string? TryOnGifUrl { get; set; }
+
         public string CategoryName { get; set; } = null!;
 
         public string? RecommendedSize { get; set; }
 
         public List<ProductSizeItemVM> Sizes { get; set; } = new List<ProductSizeItemVM>();
+
+        public List<ProductImage> ProductImages { get; set; } = new List<ProductImage>();
+
+        public List<ProductColor> ProductColors { get; set; } = new List<ProductColor>();
 
         public List<ProductReviewVM> Reviews { get; set; } = new();
 

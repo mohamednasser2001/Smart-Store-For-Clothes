@@ -18,17 +18,21 @@ namespace Models.Entities
 
         public string? ImageUrl { get; set; }
 
+        public string? TryOnGifUrl { get; set; }
+
         [Required]
         public string Gender { get; set; } = null!;
 
-        // FK
         public int CategoryId { get; set; }
 
-        // Navigation
         [ForeignKey("CategoryId")]
         public Category Category { get; set; } = null!;
 
         public ICollection<ProductSize> ProductSizes { get; set; } = new HashSet<ProductSize>();
+
+        public ICollection<ProductImage> ProductImages { get; set; } = new HashSet<ProductImage>();
+
+        public ICollection<ProductColor> ProductColors { get; set; } = new HashSet<ProductColor>();
 
         public ICollection<CartItem> CartItems { get; set; } = new HashSet<CartItem>();
     }

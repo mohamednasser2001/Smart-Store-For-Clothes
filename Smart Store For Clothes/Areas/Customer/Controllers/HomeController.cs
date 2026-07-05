@@ -34,6 +34,8 @@ namespace Smart_Store_For_Clothes.Areas.Customer.Controllers
 
             var reviews = _unitOfWork.ProductReviews.GetAll().ToList();
 
+            var favoriteProductIds = GetCurrentUserFavoriteProductIds();
+
             var productsVM = products.Select(p =>
             {
                 var productReviews = reviews.Where(r => r.ProductId == p.Id).ToList();
@@ -52,7 +54,9 @@ namespace Smart_Store_For_Clothes.Areas.Customer.Controllers
                         ? productReviews.Average(r => r.Rating)
                         : 0,
 
-                    ReviewsCount = productReviews.Count
+                    ReviewsCount = productReviews.Count,
+
+                    IsFavorite = favoriteProductIds.Contains(p.Id)
                 };
             }).ToList();
 
@@ -76,6 +80,8 @@ namespace Smart_Store_For_Clothes.Areas.Customer.Controllers
         public IActionResult FilterProducts(int? height, int? weight, int? age, int? categoryId, string? gender)
         {
             var reviews = _unitOfWork.ProductReviews.GetAll().ToList();
+            var favoriteProductIds = GetCurrentUserFavoriteProductIds();
+
             string? recommendedSize = null;
             int? recommendedSizeId = null;
 
@@ -143,7 +149,9 @@ namespace Smart_Store_For_Clothes.Areas.Customer.Controllers
                             ? productReviews.Average(r => r.Rating)
                             : 0,
 
-                        ReviewsCount = productReviews.Count
+                        ReviewsCount = productReviews.Count,
+
+                        IsFavorite = favoriteProductIds.Contains(p.Id)
                     };
                 })
                 .ToList();
@@ -166,9 +174,20 @@ namespace Smart_Store_For_Clothes.Areas.Customer.Controllers
             }
 
             var allReviews = _unitOfWork.ProductReviews.GetAll().ToList();
+            var favoriteProductIds = GetCurrentUserFavoriteProductIds();
 
             var productSizes = _unitOfWork.ProductSizes.GetAll()
                 .Where(ps => ps.ProductId == id && ps.QuantityInStock > 0)
+                .ToList();
+
+            var productImages = _unitOfWork.ProductImages.GetAll()
+                .Where(i => i.ProductId == id)
+                .OrderBy(i => i.DisplayOrder)
+                .ToList();
+
+            var productColors = _unitOfWork.ProductColors.GetAll()
+                .Where(c => c.ProductId == id)
+                .OrderBy(c => c.ColorName)
                 .ToList();
 
             string? recommendedSize = null;
@@ -241,7 +260,9 @@ namespace Smart_Store_For_Clothes.Areas.Customer.Controllers
                             ? productReviews.Average(r => r.Rating)
                             : 0,
 
-                        ReviewsCount = productReviews.Count
+                        ReviewsCount = productReviews.Count,
+
+                        IsFavorite = favoriteProductIds.Contains(p.Id)
                     };
                 })
                 .ToList();
@@ -253,8 +274,12 @@ namespace Smart_Store_For_Clothes.Areas.Customer.Controllers
                 Description = product.Description,
                 Price = product.Price,
                 ImageUrl = product.ImageUrl,
+                TryOnGifUrl = product.TryOnGifUrl,
                 CategoryName = _unitOfWork.Categories.GetById(product.CategoryId)?.Name ?? "No Category",
                 RecommendedSize = recommendedSize,
+
+                ProductImages = productImages,
+                ProductColors = productColors,
 
                 Sizes = productSizes.Select(ps => new ProductSizeItemVM
                 {
@@ -302,6 +327,7 @@ namespace Smart_Store_For_Clothes.Areas.Customer.Controllers
             }
 
             var allReviews = _unitOfWork.ProductReviews.GetAll().ToList();
+            var favoriteProductIds = GetCurrentUserFavoriteProductIds();
 
             var productsFromDb = _unitOfWork.Products.GetAll()
                 .Where(p => productIds.Contains(p.Id))
@@ -328,7 +354,9 @@ namespace Smart_Store_For_Clothes.Areas.Customer.Controllers
                             ? productReviews.Average(r => r.Rating)
                             : 0,
 
-                        ReviewsCount = productReviews.Count
+                        ReviewsCount = productReviews.Count,
+
+                        IsFavorite = favoriteProductIds.Contains(p.Id)
                     };
                 })
                 .ToList();
@@ -391,6 +419,26 @@ namespace Smart_Store_For_Clothes.Areas.Customer.Controllers
             TempData["ReviewSuccess"] = "Your review has been added successfully.";
 
             return RedirectToAction("Details", new { id = productId });
+        }
+
+        private List<int> GetCurrentUserFavoriteProductIds()
+        {
+            if (User.Identity == null || !User.Identity.IsAuthenticated)
+            {
+                return new List<int>();
+            }
+
+            var userId = _userManager.GetUserId(User);
+
+            if (string.IsNullOrEmpty(userId))
+            {
+                return new List<int>();
+            }
+
+            return _unitOfWork.FavoriteProducts.GetAll()
+                .Where(f => f.UserId == userId)
+                .Select(f => f.ProductId)
+                .ToList();
         }
     }
 }

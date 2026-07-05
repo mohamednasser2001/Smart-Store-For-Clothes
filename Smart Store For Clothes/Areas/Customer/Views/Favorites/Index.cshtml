@@ -1,0 +1,380 @@
+﻿@model List<Models.VM.ProductCardVM>
+
+@{
+    ViewData["Title"] = "My Favorites";
+}
+
+<section class="favorites-page">
+
+    <div class="favorites-header">
+        <div>
+            <span class="fav-badge">♥ Saved Products</span>
+            <h1>My Favorites</h1>
+            <p>Your favorite products are saved here so you can come back to them anytime.</p>
+        </div>
+
+        <a href="/Customer/Home/Index" class="back-products-btn">
+            ← Back to Products
+        </a>
+    </div>
+
+    @if (Model != null && Model.Any())
+    {
+        <div class="favorites-grid">
+
+            @foreach (var product in Model)
+            {
+                <div class="favorite-card">
+
+                    <div class="favorite-image-box">
+
+                        <a href="/Customer/Home/Details/@product.Id">
+                            <img src="@(string.IsNullOrEmpty(product.ImageUrl) ? "/images/category-placeholder.png" : product.ImageUrl)"
+                                 alt="@product.Name" />
+                        </a>
+
+                        <form asp-area="Customer"
+                              asp-controller="Favorites"
+                              asp-action="Remove"
+                              method="post"
+                              class="remove-fav-form">
+
+                            @Html.AntiForgeryToken()
+
+                            <input type="hidden" name="productId" value="@product.Id" />
+
+                            <button type="submit" class="remove-fav-btn" title="Remove from favorites">
+                                ♥
+                            </button>
+                        </form>
+
+                    </div>
+
+                    <div class="favorite-body">
+
+                        <div class="favorite-category">
+                            @product.CategoryName
+                        </div>
+
+                        <h3>
+                            <a href="/Customer/Home/Details/@product.Id">
+                                @product.Name
+                            </a>
+                        </h3>
+
+                        <div class="favorite-meta">
+                            <span>@product.Gender</span>
+                        </div>
+
+                        <div class="favorite-rating">
+                            @if (product.ReviewsCount > 0)
+                            {
+                                <div>
+                                    @for (int i = 1; i <= 5; i++)
+                                    {
+                                        <span style="color:@(i <= Math.Round(product.AverageRating) ? "gold" : "#ddd");">
+                                            ★
+                                        </span>
+                                    }
+                                </div>
+
+                                <small>
+                                    @product.AverageRating.ToString("0.0") / 5
+                                    (@product.ReviewsCount review@(product.ReviewsCount > 1 ? "s" : ""))
+                                </small>
+                            }
+                            else
+                            {
+                                <small>No reviews yet</small>
+                            }
+                        </div>
+
+                        <div class="favorite-footer">
+                            <strong>
+                                $@product.Price.ToString("0.00")
+                            </strong>
+
+                            <a href="/Customer/Home/Details/@product.Id" class="view-details-btn">
+                                View Details
+                            </a>
+                        </div>
+
+                    </div>
+
+                </div>
+            }
+
+        </div>
+    }
+    else
+    {
+        <div class="empty-favorites">
+            <div class="empty-icon">♡</div>
+            <h2>No favorites yet</h2>
+            <p>Start adding products to your favorites and they will appear here.</p>
+
+            <a href="/Customer/Home/Index" class="start-shopping-btn">
+                Browse Products
+            </a>
+        </div>
+    }
+
+</section>
+
+<style>
+    .favorites-page {
+        min-height: 100vh;
+        padding: 40px 24px 80px;
+        background: radial-gradient(circle at 10% 10%, rgba(108, 92, 231, 0.12), transparent 28%), radial-gradient(circle at 90% 15%, rgba(0, 206, 201, 0.12), transparent 28%), #f7f8fc;
+    }
+
+    .favorites-header {
+        max-width: 1180px;
+        margin: 0 auto 32px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 20px;
+        flex-wrap: wrap;
+    }
+
+    .fav-badge {
+        display: inline-block;
+        background: #fff0f3;
+        color: #e11d48;
+        padding: 8px 14px;
+        border-radius: 999px;
+        font-weight: 900;
+        font-size: 13px;
+        margin-bottom: 12px;
+        border: 1px solid #fecdd3;
+    }
+
+    .favorites-header h1 {
+        font-size: 42px;
+        font-weight: 900;
+        color: #111827;
+        margin: 0 0 8px;
+    }
+
+    .favorites-header p {
+        color: #6b7280;
+        margin: 0;
+        font-size: 15px;
+    }
+
+    .back-products-btn {
+        text-decoration: none;
+        background: #111827;
+        color: white;
+        padding: 12px 18px;
+        border-radius: 16px;
+        font-weight: 900;
+        transition: 0.25s;
+    }
+
+        .back-products-btn:hover {
+            color: white;
+            background: #6c5ce7;
+            transform: translateY(-3px);
+        }
+
+    .favorites-grid {
+        max-width: 1180px;
+        margin: auto;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 24px;
+    }
+
+    .favorite-card {
+        background: white;
+        border-radius: 26px;
+        overflow: hidden;
+        border: 1px solid #eef0f5;
+        box-shadow: 0 14px 35px rgba(0,0,0,0.07);
+        transition: 0.25s ease;
+    }
+
+        .favorite-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 24px 55px rgba(108, 92, 231, 0.18);
+        }
+
+    .favorite-image-box {
+        position: relative;
+        background: #f3f4f6;
+    }
+
+        .favorite-image-box img {
+            width: 100%;
+            height: 285px;
+            object-fit: cover;
+            display: block;
+        }
+
+    .remove-fav-form {
+        position: absolute;
+        top: 14px;
+        right: 14px;
+        margin: 0;
+    }
+
+    .remove-fav-btn {
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        border: none;
+        background: #e11d48;
+        color: white;
+        font-size: 22px;
+        line-height: 1;
+        cursor: pointer;
+        box-shadow: 0 8px 22px rgba(225, 29, 72, 0.35);
+        transition: 0.2s;
+    }
+
+        .remove-fav-btn:hover {
+            transform: scale(1.12);
+            background: #be123c;
+        }
+
+    .favorite-body {
+        padding: 18px;
+    }
+
+    .favorite-category {
+        font-size: 13px;
+        color: #6c5ce7;
+        font-weight: 900;
+        margin-bottom: 8px;
+    }
+
+    .favorite-body h3 {
+        font-size: 18px;
+        font-weight: 900;
+        margin: 0 0 8px;
+        color: #111827;
+    }
+
+        .favorite-body h3 a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+    .favorite-meta span {
+        display: inline-block;
+        background: #eef2ff;
+        color: #3730a3;
+        padding: 6px 11px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 800;
+        margin-bottom: 10px;
+    }
+
+    .favorite-rating {
+        min-height: 45px;
+        margin: 8px 0 14px;
+    }
+
+        .favorite-rating small {
+            color: #6b7280;
+            font-size: 12px;
+        }
+
+    .favorite-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+    }
+
+        .favorite-footer strong {
+            color: #111827;
+            font-size: 18px;
+            font-weight: 900;
+        }
+
+    .view-details-btn {
+        text-decoration: none;
+        background: linear-gradient(135deg, #6c5ce7, #00cec9);
+        color: white;
+        padding: 10px 13px;
+        border-radius: 13px;
+        font-size: 13px;
+        font-weight: 900;
+        transition: 0.2s;
+        white-space: nowrap;
+    }
+
+        .view-details-btn:hover {
+            color: white;
+            transform: translateY(-2px);
+        }
+
+    .empty-favorites {
+        max-width: 620px;
+        margin: 80px auto;
+        background: white;
+        border-radius: 30px;
+        padding: 50px 30px;
+        text-align: center;
+        box-shadow: 0 18px 45px rgba(0,0,0,0.08);
+        border: 1px solid #eef0f5;
+    }
+
+    .empty-icon {
+        width: 90px;
+        height: 90px;
+        margin: 0 auto 18px;
+        border-radius: 50%;
+        background: #fff0f3;
+        color: #e11d48;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 54px;
+        font-weight: 900;
+    }
+
+    .empty-favorites h2 {
+        font-weight: 900;
+        color: #111827;
+        margin-bottom: 8px;
+    }
+
+    .empty-favorites p {
+        color: #6b7280;
+        margin-bottom: 22px;
+    }
+
+    .start-shopping-btn {
+        display: inline-block;
+        text-decoration: none;
+        background: #111827;
+        color: white;
+        padding: 13px 22px;
+        border-radius: 16px;
+        font-weight: 900;
+    }
+
+        .start-shopping-btn:hover {
+            color: white;
+            background: #6c5ce7;
+        }
+
+    @@media (max-width: 576px) {
+        .favorites-page {
+            padding: 28px 15px 60px;
+        }
+
+        .favorites-header h1 {
+            font-size: 34px;
+        }
+
+        .favorite-image-box img {
+            height: 250px;
+        }
+    }
+</style>

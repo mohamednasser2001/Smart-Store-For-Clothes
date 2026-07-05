@@ -8,18 +8,19 @@
     @Html.AntiForgeryToken()
     <input asp-for="CartId" type="hidden" />
 
-    <div class="container mt-4">
-        <h1>Checkout</h1>
+    <div class="container mt-4 mb-5">
+        <h1 class="fw-bold mb-4">Checkout</h1>
 
         <div class="row mt-4">
+
             <div class="col-md-7">
                 <div class="card shadow-sm mb-4">
                     <div class="card-body">
-                        <h4 class="mb-3">Shipping Information</h4>
+                        <h4 class="mb-3 fw-bold">Shipping Information</h4>
 
                         <div class="mb-3">
                             <label class="form-label">Full Name</label>
-                            <input asp-for="FullName" class="form-control" />
+                            <input asp-for="FullName" class="form-control" required />
                         </div>
 
                         <div class="mb-3">
@@ -29,26 +30,100 @@
 
                         <div class="mb-3">
                             <label class="form-label">Phone Number</label>
-                            <input asp-for="PhoneNumber" class="form-control" />
+                            <input asp-for="PhoneNumber" class="form-control" required />
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">City</label>
-                            <input asp-for="City" class="form-control" />
+                            <input asp-for="City" class="form-control" required />
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">Address</label>
-                            <textarea asp-for="Address" class="form-control" rows="4"></textarea>
+                            <textarea asp-for="Address" class="form-control" rows="4" required></textarea>
                         </div>
                     </div>
                 </div>
             </div>
 
             <div class="col-md-5">
+
+                <div class="card shadow-sm mb-4">
+                    <div class="card-body">
+
+                        <h4 class="mb-3 fw-bold">Order Items</h4>
+
+                        @if (Model.CartItems != null && Model.CartItems.Any())
+                        {
+                            foreach (var item in Model.CartItems)
+                            {
+                                var itemTotal = item.Quantity * item.Product.Price;
+
+                                <div style="
+                                    display:flex;
+                                    gap:14px;
+                                    padding:14px 0;
+                                    border-bottom:1px solid #eee;">
+
+                                    <img src="@(string.IsNullOrEmpty(item.Product.ImageUrl) ? "/images/category-placeholder.png" : item.Product.ImageUrl)"
+                                         style="
+                                    width:76px;
+                                    height:76px;
+                                    object-fit:cover;
+                                    border-radius:14px;
+                                    border:1px solid #eee;" />
+
+                                    <div style="flex:1;">
+
+                                        <div style="font-weight:900; color:#111827; margin-bottom:4px;">
+                                            @item.Product.Name
+                                        </div>
+
+                                        <div style="font-size:13px; color:#6b7280;">
+                                            Size:
+                                            <strong style="color:#111827;">
+                                                @item.Size.Name
+                                            </strong>
+                                        </div>
+
+                                        @if (!string.IsNullOrWhiteSpace(item.ColorName))
+                                        {
+                                            <div style="font-size:13px; color:#6b7280;">
+                                                Color:
+                                                <strong style="color:#111827;">
+                                                    @item.ColorName
+                                                </strong>
+                                            </div>
+                                        }
+
+                                        <div style="font-size:13px; color:#6b7280;">
+                                            Quantity:
+                                            <strong style="color:#111827;">
+                                                @item.Quantity
+                                            </strong>
+                                        </div>
+
+                                    </div>
+
+                                    <div style="font-weight:900; color:#111827; white-space:nowrap;">
+                                        $@itemTotal.ToString("0.00")
+                                    </div>
+
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <p class="text-muted mb-0">No items found.</p>
+                        }
+
+                    </div>
+                </div>
+
                 <div class="card shadow-sm">
                     <div class="card-body">
-                        <h4 class="mb-3">Order Summary</h4>
+
+                        <h4 class="mb-3 fw-bold">Order Summary</h4>
 
                         <div class="d-flex justify-content-between mb-2">
                             <span>Subtotal</span>
@@ -70,8 +145,10 @@
                         <button class="btn btn-dark w-100 mt-4" type="submit">
                             Place Order
                         </button>
+
                     </div>
                 </div>
+
             </div>
         </div>
     </div>

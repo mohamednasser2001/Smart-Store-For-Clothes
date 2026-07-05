@@ -105,6 +105,7 @@
                 <form asp-area="Admin" asp-controller="Orders" asp-action="Accept" method="post" class="mt-3">
                     @Html.AntiForgeryToken()
                     <input type="hidden" name="id" value="@Model.Order.Id" />
+
                     <button type="submit" class="accept-btn">
                         Accept Order
                     </button>
@@ -131,20 +132,50 @@
                     <tr>
                         <th>Product</th>
                         <th>Size</th>
+                        <th>Color</th>
                         <th>Quantity</th>
                         <th>Unit Price</th>
                         <th>Total Price</th>
                     </tr>
                 </thead>
+
                 <tbody>
                     @foreach (var item in Model.OrderItems)
                     {
                         <tr>
                             <td>@item.ProductName</td>
+
                             <td>@item.SizeName</td>
+
+                            <td>
+                                @if (!string.IsNullOrWhiteSpace(item.ColorName))
+                                {
+                                    <span style="
+                                        display:inline-block;
+                                        background:#eef2ff;
+                                        color:#3730a3;
+                                        padding:6px 12px;
+                                        border-radius:999px;
+                                        font-weight:800;
+                                        font-size:13px;">
+                                        @item.ColorName
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span style="color:gray;">No color</span>
+                                }
+                            </td>
+
                             <td>@item.Quantity</td>
-                            <td class="money-value">$@item.UnitPrice.ToString("0.00")</td>
-                            <td class="money-value">$@item.TotalPrice.ToString("0.00")</td>
+
+                            <td class="money-value">
+                                $@item.UnitPrice.ToString("0.00")
+                            </td>
+
+                            <td class="money-value">
+                                $@item.TotalPrice.ToString("0.00")
+                            </td>
                         </tr>
                     }
                 </tbody>
